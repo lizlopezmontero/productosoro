@@ -1,0 +1,324 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<p-panel header="Detalle de facturación" class="w-full">
+
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <div class="w-full flex align-items-center justify-content-between">
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+            <button mat-mini-fab color="primary" class="mr-2" (click)="nuevo3()">
+                <mat-icon>poll</mat-icon>
+            </button>
+            <button mat-mini-fab color="warn" class="mr-2" (click)="visible2 = true">
+                <mat-icon *ngIf="!visible2">filter_list</mat-icon>
+                <mat-icon *ngIf="visible2">filter_1</mat-icon>
+            </button>
+            <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="w-full grid">
+             <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <span class="p-float-label">
+                    <p-dropdown [options]="vendedores" [(ngModel)]="vendedor" optionLabel="nombre"
+                        optionValue="id" inputId="ven" placeholder="Vendedor" appendTo="body" styleClass="w-full">
+                    </p-dropdown>
+                    <label htmlFor="ven">Vendedor</label>
+                </span>
+             </div>
+             <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <span class="p-float-label">
+                    <p-inputNumber inputId="tipoC" [(ngModel)]="tipoCambioActual"
+                         styleClass="w-full" class="w-full"></p-inputNumber>
+                    <label htmlFor="tipoC">Tipo de cambio</label>
+                </span>
+             </div>
+             <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <span class="p-float-label">
+                    <p-calendar [(ngModel)]="fecha" appendTo="body" styleClass="w-full" [touchUI]="true"
+                     inputId="fecha" dateFormat="dd/mm/yy" [firstDayOfWeek]="1" [readonlyInput]="true"></p-calendar>
+                    <label htmlFor="fecha">Fecha</label>
+                </span>
+             </div>
+             <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <span class="p-float-label">
+                    <p-dropdown [options]="lugares" [(ngModel)]="lugar" (onChange)="selectedLugar($event.value)" optionLabel="nombre" [filter]="true" filterBy="nombre"
+                        optionValue="id" inputId="ven" placeholder="Lugar" appendTo="body" styleClass="w-full">
+                    </p-dropdown>
+                    <label htmlFor="place">Lugar</label>
+                </span>
+             </div>
+             <div class="col-12 grid">
+                <div class="col-5">
+                    <p-button label="Buscar" icon="pi pi-search" (onClick)="getAll()" styleClass="p-button-raised p-button-info"></p-button>
+                </div>
+                <div class="col-7">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="tot" [readonly]="true" [(ngModel)]="sumaTotal"
+                            prefix="₡" styleClass="w-full" class="w-full"></p-inputNumber>
+                        <label htmlFor="tot">Total Diario</label>
+                    </span>
+                </div>
+                
+             </div>
+             <div *ngIf="w <= 800" class="col-12 grid">
+                <div class="col-6">
+                    Total Ventas: {{ventaTotal()}} 
+                </div>
+                <div class="col-6">
+                    V. Bruta: {{ganaciaTotal()}}
+                </div>
+             </div>
+             
+        </div>
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+         [value]="facturas" 
+        selectionMode="single" dataKey="id"
+        [loading]="loading" [globalFilterFields]="['id', 'codigoProducto', 'descripcionProducto', 'ingreso', 'devolucion']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Buscar producto" class="mr-2" />
+                    <p-button *ngIf="w <= 800" icon="pi pi-save" (onClick)="guardarFacturas()" styleClass="p-button-raised p-button-success"></p-button>
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <!-- <th pSortableColumn="codigoProducto" >Producto <p-sortIcon field="codigoProducto"></p-sortIcon></th> -->
+                <th pSortableColumn="descripcionProducto">Descripcion <p-sortIcon field="descripcionProducto"></p-sortIcon></th>
+                <th pSortableColumn="ingreso">Ingreso <p-sortIcon field="ingreso"></p-sortIcon></th>
+                <th pSortableColumn="devolucion">Devolución <p-sortIcon field="devolucion"></p-sortIcon></th>
+                <th>Total Ventas </th>
+                <th>Precio Total </th>
+                <th style="min-width:100px">Acciones</th>              
+            </tr>
+            <!-- <tr>
+                <th>
+                    <p-columnFilter type="text" field="codigoProducto" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="descripcionProducto" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="ingreso" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="devolucion" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr> -->
+        </ng-template>
+        <ng-template pTemplate="body" let-inv let-ri="rowIndex" >
+            <tr>
+                <!-- <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Producto:</span>  {{inv.codigoProducto}}</td> -->
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Descripción:</span>  {{inv.descripcionProducto}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Ingreso:</span>
+                    <span *ngIf="inv.id; else bloq">{{inv.ingreso.toLocaleString()}}</span>  
+                    <ng-template #bloq> 
+                        <p-inputNumber [(ngModel)]="inv.ingreso" [max]="9999" (onInput)="pendantChanges = true" [tabindex]="ri"
+                            [inputStyle]="{'max-width': '140px'}" [min]="0"></p-inputNumber>
+                    </ng-template>
+                </td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Devolución:</span>
+                    <span *ngIf="inv.id; else bloque">{{inv.devolucion.toLocaleString()}}</span>  
+                    <ng-template #bloque> 
+                        <p-inputNumber [(ngModel)]="inv.devolucion" [max]="9999" [tabindex]="ri"
+                        [inputStyle]="{'max-width': '140px'}" [min]="0"></p-inputNumber>
+                    </ng-template>
+                </td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Total Ventas:</span>  {{( inv.ingreso - inv.devolucion ).toLocaleString()}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50"> Monto Ventas:</span>
+                     ₡ {{(( inv.ingreso - inv.devolucion )*inv.precioProducto).toLocaleString()}}
+                </td>
+                <td style="justify-content: start;">
+                    <!-- <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editar(inv)">
+                        <mat-icon>edit</mat-icon>
+                    </button> -->
+                    <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm(inv, ri)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>               
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7">No hay registros</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <tr>
+                <td colspan="7">
+                    <div class="w-full flex justify-content-between">
+                        <div>
+                            <p-button label="Guardar" icon="pi pi-save" (onClick)="guardarFacturas()" styleClass="p-button-raised p-button-success"></p-button>
+                        </div>
+                        <div>
+                           Total Venta: {{ventaTotal()}} &nbsp; Venta Bruta {{ganaciaTotal()}}
+                        </div>
+                    </div>                
+                </td>
+            </tr>
+            
+        </ng-template>
+    </p-table>
+
+    </mat-card-content>
+</mat-card>
+</p-panel>
+
+<p-dialog [(visible)]="visible" [maximizable]="true" [modal]="true" [closable]="true">
+    <mat-card class="w-full p-3">
+        <mat-card-content>
+            <form (submit)="guardar()" class="grid">
+                <div class="mb-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="productos" [(ngModel)]="currentFactura.codigoProducto" optionLabel="descripcion" [filter]="true"
+                         filterBy="descripcion" [showClear]="true" placeholder="Seleccionar un lugar" optionValue="id"
+                         name="product" inputId="product" styleClass="w-full" (onChange)="selectProduct($event.value)"
+                         appendTo="body"  [ngModelOptions]="{standalone: true}" [ngClass]="{'ng-invalid ng-dirty': send && !currentFactura.codigoProducto}">
+                        </p-dropdown>
+                        <label htmlFor="product">Producto</label>
+                    </span> 
+                    <small class="p-error" *ngIf="send && !currentFactura.codigoProducto">Debe selecccionar un producto</small> 
+                </div>
+                <small class="p-error" *ngIf="send && !currentFactura.codigoProducto"></small>
+                <div class="mb-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="ingre" [(ngModel)]="currentFactura.ingreso" name="ingre" [max]="9999"
+                             styleClass="w-full" class="w-full"  [ngModelOptions]="{standalone: true}" [min]="0"
+                             [ngClass]="{'ng-invalid ng-dirty': send && !currentFactura.codigoProducto}"></p-inputNumber>
+                        <label htmlFor="ingre">Ingresos</label>
+                    </span>
+                    <small class="p-error" *ngIf="send && !currentFactura.ingreso">Debe añadir monto de ingreso de prod.</small>
+                </div>
+                <div class="mb-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="dev" [(ngModel)]="currentFactura.devolucion" name="dev" [min]="0"
+                             styleClass="w-full" class="w-full" [max]="9999" [ngModelOptions]="{standalone: true}"></p-inputNumber>
+                        <label htmlFor="dev">Devoluciones</label>
+                    </span>
+                </div>
+            </form>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="guardar()" class="mr-3">Guardar</button>
+            <button mat-raised-button (click)="visible = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>
+
+<p-dialog [(visible)]="visible2" [maximizable]="true" [modal]="true" [closable]="true">
+    <mat-card class="w-full p-3">
+        <mat-card-content>
+            <div  class="grid">
+                <div class="mb-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="vendedores" [(ngModel)]="vendedorFilter" optionLabel="nombre"
+                            optionValue="id" inputId="vend" placeholder="Vendedor" appendTo="body" styleClass="w-full">
+                        </p-dropdown>
+                        <label htmlFor="vend">Seleccionar vendedor</label>
+                    </span>
+                </div>
+                <div class="mb-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="lugares" [(ngModel)]="lugarFilter" optionLabel="nombre" [filter]="true" filterBy="nombre"
+                            optionValue="id" inputId="pla" placeholder="Lugar" appendTo="body" styleClass="w-full"
+                            (onChange)="selectLugar($event.value)">
+                        </p-dropdown>
+                        <label htmlFor="pla">Seleccione un lugar</label>
+                    </span>
+                </div>
+                <div class="mb-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="fechas" [(ngModel)]="fechaFilter"
+                             inputId="fec" placeholder="Fechas" appendTo="body" styleClass="w-full">
+                             <ng-template pTemplate="selectedItem">
+                                <div *ngIf="fechaFilter">
+                                    <div>{{ getFecha(fechaFilter) }}</div>
+                                </div>
+                            </ng-template>
+                            <ng-template let-fech pTemplate="item">
+                                <div>{{ getFecha(fech) }}</div>
+                            </ng-template>
+                        </p-dropdown>
+                        <label htmlFor="fec">Seleccione una fecha</label>
+                    </span>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="apply()" class="mr-3">Aplicar</button>
+            <button mat-raised-button (click)="visible2 = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>
+
+
+<p-dialog [(visible)]="visible3" [maximizable]="true"  [modal]="true" [closable]="true" position="top">
+    <mat-card class="w-full p-3">
+        <mat-card-content>
+            <p-table #dtn styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'350px'"
+            selectionMode="single" dataKey="id" [value]="combinedRubros" 
+            [loading]="loading" [globalFilterFields]="['nombreRubro', 'monto']">
+            <!-- <ng-template pTemplate="caption">
+                <div class="flex">
+                    <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                        <i class="pi pi-search"></i>
+                        <input pInputText  type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Buscar rubro" />
+                    </span>
+                </div>
+            </ng-template> -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th > </th>
+                    <th pSortableColumn="nombreRubro">Rubro <p-sortIcon field="nombreRubro"></p-sortIcon></th>
+                    <th pSortableColumn="monto">Monto<p-sortIcon field="monto"></p-sortIcon></th>        
+                </tr>
+        
+            </ng-template>
+            <ng-template pTemplate="body" let-prod >
+                <tr>
+                    <td style="justify-content: start;">
+                        <p-checkbox [(ngModel)]="prod.check" [binary]="true" inputId="binary3"></p-checkbox>
+                    </td>
+                    <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Rubro:</span>  {{prod.nombreRubro}}</td>
+                    <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Monto:</span>  
+                        <p-inputNumber [(ngModel)]="prod.monto" [readonly]="!prod.check"
+                        class="w-adjust" styleClass="w-adjust" inputStyleClass="w-adjust"
+                        (onInput)="pendantChanges = true"></p-inputNumber>
+                    </td>           
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="3">No hay registros</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <tr>
+                    <td colspan="3">
+                        <div>Total Rubros: {{totalCierre()}}</div>
+                        <br>
+                        <div>Cierre caja: {{diferencial()}}</div>
+                    </td>
+                </tr>
+                
+            </ng-template>
+            </p-table>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="guardarCierre()" class="mr-3">Guardar</button>
+            <button mat-raised-button (click)="visible3 = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

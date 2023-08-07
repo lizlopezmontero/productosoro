@@ -1,0 +1,184 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <span >Costos materia prima</span>
+          <div>
+            <button mat-mini-fab color="accent" class="mr-2" [routerLink]="['/app/productos']">
+                <mat-icon>shopping_cart</mat-icon>
+            </button>
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+         [value]="productos" 
+        selectionMode="single" dataKey="id"
+        [loading]="loading" 
+        [globalFilterFields]="['id', 'descripcion','categoria', 'precioCosto', 'cantidadCosto']">
+        <ng-template pTemplate="caption">
+            <div class="flex mb-2">
+                <span class="p-float-label">
+                    <p-inputNumber inputId="cant" [(ngModel)]="costoFijo"></p-inputNumber>
+                        <label htmlFor="cant">Costos Fijos por unidad</label>
+                </span>
+                <div>
+                    <button mat-icon-button color="primary" (click)="postVariable()">
+                        <mat-icon>save</mat-icon>
+                    </button>
+                </div>
+            </div>
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Buscar producto" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="id" >Código <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion"></p-sortIcon></th>
+                <th pSortableColumn="categoria">Categoría <p-sortIcon field="categoria"></p-sortIcon></th>
+                <th pSortableColumn="precioCosto">Precio Mercadería <p-sortIcon field="precioCosto"></p-sortIcon></th>
+                <th pSortableColumn="seVendeComo">Se Vende como <p-sortIcon field="seVendeComo"></p-sortIcon></th>
+                <th pSortableColumn="cantidadCosto">Cantidad del paquete<p-sortIcon field="cantidadCosto"></p-sortIcon></th>
+                <th>Costo por Kilo</th>
+                <th>Costo unitario</th>
+                <th style="min-width:100px">Acciones</th>              
+            </tr>
+            <tr>
+                <th>
+                    <p-columnFilter type="text" field="id" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="descripcion" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter field="categoria" matchMode="equals" [showMenu]="false">
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-dropdown [ngModel]="value" [options]="categorias"
+                             (onChange)="filter($event.value)" placeholder="Todos"
+                            [showClear]="true" appendTo="body"
+                            [showClear]="true" optionValue="nombre" optionLabel="nombre">
+                            </p-dropdown>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="precioCosto" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>              
+                <th>
+                    <p-columnFilter field="seVendeComo" matchMode="equals" [showMenu]="false">
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-dropdown [ngModel]="value" [options]="vendeComo"
+                             (onChange)="filter($event.value)" placeholder="Todos"
+                            [showClear]="true" appendTo="body"
+                            [showClear]="true">
+                            </p-dropdown>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="cantidadCosto" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-prod >
+            <tr>
+                <td style="justify-content: start;">
+                    <span class="p-column-title font-bold w-50">Codigo:</span> 
+                    {{prod.id}}
+                </td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Descripcion:</span>  {{prod.descripcion}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Categoría:</span>  {{prod.categoria}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Precio Mercadería:</span>  {{prod.precioCosto?.toLocaleString() ?? ''}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Se Vende como:</span>  {{prod.seVendeComo}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Cantidad del paquete:</span>  {{getCantidad(prod.seVendeComo,prod.cantidadCosto)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Costo por kilo:</span>  {{costoXKilo(prod)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Costo unitario:</span>  {{costoUnitario(prod)}}</td>
+                <td style="justify-content: center;">
+                    <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editar(prod)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                </td>               
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7">No hay registros</td>
+            </tr>
+        </ng-template>
+        </p-table>
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>
+
+<p-dialog [header]="editando? 'Editar producto': 'Agregar producto'" [(visible)]="visible" [modal]="true"
+ [style]="{ 'min-width': '300px', width: '400px'}"
+ [draggable]="true" [resizable]="true" [closable]="true" position="top" [maximizable]="true" max>
+    <mat-card class="u-mt-3 p-3" [ngClass]="{ 'u-h-center u-mw-500': !isMobile }">
+        <mat-card-content>
+            <form [formGroup]=form (submit)="guardar()">
+
+                <mat-form-field [style]="{width: '100%'}">
+                    <mat-label>Codigo</mat-label>
+                    <input matInput type="text" formControlName="id" [readonly]="true">
+                </mat-form-field>
+                <mat-form-field [style]="{width: '100%'}">
+                    <mat-label>Descripcion</mat-label>
+                    <input matInput type="text" formControlName="desc" [readonly]="true">
+                </mat-form-field>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="categorias" [(ngModel)]="selectedCategoria"
+                         placeholder="Seleccionar un vendedor" optionLabel="nombre" optionValue="nombre"
+                         name="cat" inputId="cat" [style]="{width: '100%'}" [ngModelOptions]="{standalone: true}"
+                         appendTo="body" styleClass="w-full" [readonly]="true">
+                        </p-dropdown>
+                        <label htmlFor="cat">Categoria</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="price" [(ngModel)]="precioCosto"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="price"></p-inputNumber>
+                        <label htmlFor="price">Precio Mercadería</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="vendeComo" [(ngModel)]="seVendeComo"
+                         placeholder="Seleccionar una opcion"
+                         name="vende" inputId="vende" [style]="{width: '100%'}" [ngModelOptions]="{standalone: true}"
+                         appendTo="body" styleClass="w-full" [readonly]="true">
+                        </p-dropdown>
+                        <label htmlFor="vende">Se vende como</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="cant" [(ngModel)]="cantidadCosto"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="cant"></p-inputNumber>
+                        <label htmlFor="cant">Cantidad del paquete</label>
+                    </span>
+                </div>              
+            </form>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="guardar()" class="mr-3">Guardar</button>
+            <button mat-raised-button (click)="visible = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

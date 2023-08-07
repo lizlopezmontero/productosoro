@@ -1,0 +1,72 @@
+<p-toast key="ts"></p-toast>
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <span >Existencias de productos</span>
+          <div>
+            <button mat-mini-fab color="accent" class="mr-2" [routerLink]="['/app/productos']">
+                <mat-icon>shopping_cart</mat-icon>
+            </button>
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'350px'"
+        [value]="productos" 
+        selectionMode="single" dataKey="id"
+        [loading]="loading" 
+        [globalFilterFields]="['id', 'descripcion','categoria', 'precioCosto', 'cantidadCosto', 'existencias']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Buscar producto" />
+                    <button mat-icon-button color="primary" (click)="guardar()">
+                        <mat-icon>save</mat-icon>
+                    </button>
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="id" >Código <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion"></p-sortIcon></th>
+                <th pSortableColumn="existencias">Existencias<p-sortIcon field="existencias"></p-sortIcon></th>        
+            </tr>
+    
+        </ng-template>
+        <ng-template pTemplate="body" let-prod >
+            <tr>
+                <td style="justify-content: start;">
+                    <span class="p-column-title font-bold w-50">Codigo:</span> 
+                    {{prod.id}}
+                </td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Descripcion:</span>  {{prod.descripcion}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Existencias:</span>  
+                    <p-inputNumber [(ngModel)]="prod.existencias"
+                       class="w-adjust" styleClass="w-adjust" inputStyleClass="w-adjust"
+                       (onInput)="presionar()"></p-inputNumber>
+                </td>           
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="3">No hay registros</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <tr>
+                <td colspan="3">
+                    <button mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+                </td>
+            </tr>
+        </ng-template>
+        </p-table>
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>

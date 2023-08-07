@@ -1,0 +1,197 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<p-panel header="Detalle de prestamos a clientes" class="w-full">
+
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <div class="w-full flex align-items-center justify-content-between">
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+            <button mat-mini-fab color="warn" class="mr-2" (click)="filterer()">
+                <mat-icon *ngIf="!lugarId">filter_list</mat-icon>
+                <mat-icon *ngIf="lugarId">filter_1</mat-icon>
+            </button>
+            <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="w-full grid">
+            <div class="lg:col-4 col-6 flex align-items-center">
+                <label for="vendedor">Vendedor:</label>
+            </div>
+            <div class="lg:col-4 col-6">
+                <p-dropdown [options]="vendedores" (onChange)="onSelected($event.value)" (onChange)="onFilter($event.value)"
+                optionValue="id" optionLabel="nombre" placeholder="Vendedor" appendTo="body"></p-dropdown>
+            </div> 
+        </div>
+
+        <p-divider></p-divider>
+
+        <p-table [value]="prestamos" sortField="nombre" sortMode="single" dataKey="nombre" rowGroupMode="subheader" groupRowsBy="nombre"
+         [paginator]="true" [rows]="10" [showCurrentPageReport]="true" 
+          currentPageReportTemplate="Mostrando registros del {first} al {last} de {totalRecords}" 
+          [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:100%">Nombre</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="groupheader" let-client let-rowIndex="rowIndex" let-expanded="expanded">
+                <tr>
+                    <td class="flex align-items-center">
+                        <button type="button" pButton pRipple [pRowToggler]="client" class="p-button-text p-button-rounded p-button-plain mr-2" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                        <span class="font-bold ml-2">
+                            {{client.nombre}} | {{client.descripcion}} ({{calculateClientTotal(client.id)}})
+                        </span>
+                     
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="groupfooter" let-client>
+                <tr class="p-rowgroup-footer">
+                    <!-- <td colspan="3" style="text-align: right">Total: {{calculateClientTotal(client.id)}}</td> -->
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-client>
+               <p-table [value]="client.prestamos" dataKey="id" [loading]="!client.prestamos"
+               
+                styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines"
+                responsiveLayout="stack" [breakpoint]="'799px'">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="fecha">Fecha <p-sortIcon field="fecha"></p-sortIcon></th>
+                        <th pSortableColumn="abono">Tipo <p-sortIcon field="abono"></p-sortIcon></th>
+                        <th pSortableColumn="monto" >Monto <p-sortIcon field="monto"></p-sortIcon></th>
+                        <th style="min-width: 110px;width: 120px;">Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-credit >
+                    <tr>
+                        <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Fecha:</span>  {{credit.fecha.toDate().toLocaleDateString('en-GB')}}</td>
+                        <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Tipo:</span>  {{getTipo(credit.abono)}}</td>
+                        <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Monto:</span>  {{credit.monto.toLocaleString()}}</td>
+                        <td style="justify-content: start;">
+                            <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editData(credit)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm(credit)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr   >
+                        <td colspan="3">Sin creditos</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="summary">
+                    <tr>
+                        <td colspan="3" style="text-align: right">Total credito: {{calculateClientTotal(client.id)}}</td>
+                    </tr>
+                </ng-template>
+               </p-table>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td>No hay registros</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>
+</p-panel>
+
+<p-dialog header="Agregar prestamo" [(visible)]="visible" [modal]="true" [style]="{ 'min-width': '300px', width: '400px'}"
+[draggable]="true" [resizable]="true" [closable]="true" position="top">
+
+<mat-card class="u-mt-3 p-3">
+    <mat-card-content>
+        <div class="w-full grid">
+            <div class="col-12">
+                <span class="p-float-label">
+                    <p-dropdown [options]="vendedores" [(ngModel)]="selectedSeller" (onChange)="onFilter($event.value)" styleClass="w-full"
+                    optionValue="id" inputId="sell" optionLabel="nombre" placeholder="Vendedor" appendTo="body"></p-dropdown>
+                    <label htmlFor="sell">Vendedor</label>
+                </span>
+            </div> 
+            <div class="col-12">
+                <span class="p-float-label">
+                    <p-dropdown [options]="clientesFiltered" [(ngModel)]="selectedClient" [filter]="true" filterBy="nombre,descripcion" 
+                        optionValue="id" inputId="cli" (onChange)="selectCliente($event.value)" placeholder="Cliente" appendTo="body" styleClass="w-full">
+                        <ng-template let-itm pTemplate="item">
+                            {{itm.nombre}} | {{itm.descripcion}}
+                        </ng-template>
+                        <ng-template let-itm pTemplate="selectedItem">
+                            {{itm.nombre}} | {{itm.descripcion}}
+                        </ng-template>
+                    </p-dropdown>
+                    <label htmlFor="cli">Cliente</label>
+                </span>
+            </div>
+            <div class="col-12">
+                <span class="p-float-label">
+                    <p-calendar [(ngModel)]="selectedFecha" appendTo="body" styleClass="w-full" [touchUI]="true" inputId="fecha" dateFormat="dd/mm/yy" [firstDayOfWeek]="1" [readonlyInput]="true"></p-calendar>
+                    <label htmlFor="fecha">Fecha</label>
+                </span>
+            </div>
+            <div class="col-12">
+                <div class="flex flex-wrap gap-3">
+                    <div class="flex align-items-center">
+                        <p-radioButton name="pizza" value="Credito" [(ngModel)]="tipoMonto" inputId="ingredient1"></p-radioButton>
+                        <label for="ingredient1" class="ml-2">Credito</label>
+                    </div>
+                    
+                    <div class="flex align-items-center">
+                        <p-radioButton name="pizza" value="Abono" [(ngModel)]="tipoMonto" inputId="ingredient2"></p-radioButton>
+                        <label for="ingredient2" class="ml-2">Abono</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <span class="p-float-label">
+                    <p-inputNumber [(ngModel)]="selectedAmount" inputId="amount" mode="decimal" styleClass="w-full" [min]="0" [max]="100000"> </p-inputNumber>
+                    <label htmlFor="amount">Monto</label>
+                </span>
+            </div>
+        </div>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="guardar()" class="mr-3">Guardar</button>
+        <button mat-raised-button (click)="visible = false">Cerrar</button>
+    </mat-card-actions>
+</mat-card>
+
+   
+</p-dialog>
+
+<p-dialog header="Filtros adicionales" [(visible)]="filtrar" [modal]="true" [style]="{ 'min-width': '300px', width: '400px'}"
+[draggable]="true" [resizable]="true" [closable]="true" position="top">
+    <mat-card class="u-mt-3 p-3">
+        <mat-card-content>
+            <div class="w-full grid">
+                <div class="col-12">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="lugares" [(ngModel)]="lugarId" optionLabel="nombre" [filter]="true"
+                         filterBy="nombre" [showClear]="true" placeholder="Seleccionar un lugar" optionValue="id"
+                         name="place" inputId="place" [style]="{width: '100%'}" appendTo="body">
+                        </p-dropdown>
+                        <label htmlFor="place">Lugar</label>
+                    </span>
+                </div> 
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="aplicar()" class="mr-3">Aplicar</button>
+            <button mat-raised-button (click)="filtrar = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

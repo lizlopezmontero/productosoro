@@ -1,0 +1,111 @@
+<mat-toolbar color="primary" class="nav-bar">
+    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon" (click)="sidenav.toggle()" matTooltip="Menu">
+        <mat-icon>menu</mat-icon>
+    </button>
+    <span>Productos oro</span>
+    <div>
+        <span>
+            <button style="cursor: pointer;" mat-raised-button  (click)="logout()">Cerrar sesion</button>
+        </span>
+    </div>
+</mat-toolbar>
+<mat-sidenav-container class="app-container">
+    <mat-sidenav #sidenav mode="over" [class.mat-elevation-z4]="true" class="app-sidenav">
+        <mat-nav-list>
+            <mat-list-item routerLink="#">
+                <div class="flexed">
+                    <mat-icon>dashboard</mat-icon><span>Menu Principal</span>
+                </div>              
+            </mat-list-item>
+            <mat-expansion-panel [class.mat-elevation-z0]="true">
+                <mat-expansion-panel-header>
+                    Mantenimientos
+                </mat-expansion-panel-header>
+                <mat-nav-list>
+                    <a mat-list-item [routerLink]="['/app/lugares']" (click)="sidenav.toggle()">
+                        <div class="flexed">
+                            <mat-icon>add_location</mat-icon> <span>Lugares</span>
+                        </div>                    
+                    </a>
+                    <a mat-list-item [routerLink]="['/app/clientes']" (click)="sidenav.toggle()">
+                        <div class="flexed">
+                            <mat-icon>face</mat-icon><span>Clientes</span>
+                        </div>                       
+                    </a>
+                    <a mat-list-item [routerLink]="['/app/productos']" (click)="sidenav.toggle()">
+                        <div class="flexed">
+                            <mat-icon>shopping_cart</mat-icon><span>Productos</span>
+                        </div>                       
+                    </a>
+                    <a mat-list-item [routerLink]="['/app/materia-prima']" (click)="sidenav.toggle()">
+                        <div class="flexed">
+                            <mat-icon>shopping_basket</mat-icon><span>Materia Prima</span>
+                        </div>                       
+                    </a>
+                    <a mat-list-item [routerLink]="['/app/inventario']" (click)="sidenav.toggle()">
+                        <div class="flexed">
+                            <mat-icon>assignment_turned_in</mat-icon><span>Inventario</span>
+                        </div>                       
+                    </a>
+                    <a mat-list-item [routerLink]="['/app/cierre-caja']" (click)="sidenav.toggle()">
+                        <div class="flexed">
+                            <mat-icon>poll</mat-icon><span>Cierre Caja</span>
+                        </div>                       
+                    </a>
+                </mat-nav-list>
+            </mat-expansion-panel>
+                
+                <mat-expansion-panel [class.mat-elevation-z0]="true">
+                    <mat-expansion-panel-header>
+                        Transacciones
+                    </mat-expansion-panel-header>
+                    <mat-nav-list>
+                        <a mat-list-item [routerLink]="['/app/prestamos']" (click)="sidenav.toggle()">
+                            <div class="flexed">
+                                <mat-icon>monetization_on</mat-icon><span>Creditos</span>
+                            </div>                       
+                        </a>
+                        <a mat-list-item [routerLink]="['/app/facturacion']" (click)="sidenav.toggle()">
+                            <div class="flexed">
+                                <mat-icon>insert_drive_file</mat-icon><span>Facturación</span>
+                            </div>                       
+                        </a>
+                    </mat-nav-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel [class.mat-elevation-z0]="true">
+                    <mat-expansion-panel-header>
+                        Reportes
+                    </mat-expansion-panel-header>
+                    <mat-nav-list>
+                        <a mat-list-item [routerLink]="['/app/reporte-ventas']" (click)="sidenav.toggle()">
+                            <div class="flexed">
+                                <mat-icon>table_chart</mat-icon><span>Reporte Ventas</span>
+                            </div>                       
+                        </a>
+                        <a mat-list-item [routerLink]="['/app/pedidos']" (click)="sidenav.toggle()">
+                            <div class="flexed">
+                                <mat-icon>add_shopping_cart</mat-icon><span>Pedidos</span>
+                            </div>                       
+                        </a>
+                    </mat-nav-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel [class.mat-elevation-z0]="true">
+                    <mat-expansion-panel-header>
+                        Actualizaciones
+                    </mat-expansion-panel-header>
+                    <mat-nav-list>
+                        <a mat-list-item (click)="update()">
+                            <div class="flexed">
+                                <mat-icon>update</mat-icon><span>Actualizar</span>
+                            </div>                       
+                        </a>
+                    </mat-nav-list>
+                </mat-expansion-panel>
+        </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <div class="app-sidenav-content">
+            <router-outlet></router-outlet>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container> 

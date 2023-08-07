@@ -1,0 +1,101 @@
+<p-toast key="ts"></p-toast>
+<p-panel header="Pedidos por lugar" class="w-full">
+
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <div class="w-full flex align-items-center justify-content-between">
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="w-full grid">
+
+             <div class="grid">
+                <div class="col-12">
+                    <span class="p-float-label">
+                        <p-multiSelect [options]="lugares" [style]="{width: '100%'}" [(ngModel)]="lugaresSelected" inputId="lugs" optionLabel="nombre" optionValue="id"></p-multiSelect>
+                        <label for="lugs">Lugares</label>
+                    </span>
+                </div>
+                <div class="flex col-12">
+                    <span class="p-float-label">
+                        <p-calendar [(ngModel)]="fechas" selectionMode="range" appendTo="body" styleClass="w-full" [touchUI]="true"
+                         inputId="fecha" dateFormat="dd/mm/yy" [firstDayOfWeek]="1" [readonlyInput]="true"></p-calendar>
+                        <label htmlFor="fecha">Fechas </label>
+                    </span>
+                    <div class="ml-4">
+                        <p-button label="Buscar" icon="pi pi-search" (onClick)="get()" styleClass="p-button-raised p-button-info"></p-button>
+                    </div>
+                </div>
+                
+             </div>
+             
+        </div>
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+        [paginator]="true" [rows]="50" [showCurrentPageReport]="true"  [value]="pedidos" 
+        selectionMode="single"
+        currentPageReportTemplate="Mostrando registros del {first} al {last} de {totalRecords}" [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="loading" [globalFilterFields]="['nombreProducto', 'ventaMaximo', 'inventarioActual', 'faltante', 'inversion', 'pedidoPesoUnidad']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Buscar" class="mr-2" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="nombreProducto" >Producto <p-sortIcon field="nombreProducto"></p-sortIcon></th>
+                <th pSortableColumn="ventaMaximo">Maximo Venta <p-sortIcon field="ventaMaximo"></p-sortIcon></th>
+                <th pSortableColumn="inventarioActual">Existencias Actuales <p-sortIcon field="inventarioActual"></p-sortIcon></th>
+                <th pSortableColumn="faltante">Faltante <p-sortIcon field="faltante"></p-sortIcon></th>
+                <th pSortableColumn="pedidoPesoUnidad">Pedido Peso / Unidad <p-sortIcon field="pedidoPesoUnidad"></p-sortIcon></th>          
+            </tr>
+            <!-- <tr>
+                <th>
+                    <p-columnFilter type="text" field="codigoProducto" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="descripcionProducto" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="ingreso" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="devolucion" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr> -->
+        </ng-template>
+        <ng-template pTemplate="body" let-rep >
+            <tr>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Producto:</span>  {{rep.nombreProducto}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Maximo Venta:</span>  {{rep.ventaMaximo.toLocaleString()}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Existencias Actuales:</span> {{rep.inventarioActual.toLocaleString()}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Faltante:</span>
+                    <span [ngStyle]="{'color': rep.faltante < 0 ? 'red': 'green', 'font-weight': 'bold'}">{{rep.faltante.toLocaleString()}}</span> 
+                </td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Pedido Peso / Unidad:</span>
+                    <span [ngStyle]="{'color': rep.pedidoPesoUnidad < 0 ? 'red': 'green', 'font-weight': 'bold'}">
+                        {{rep.pedidoPesoUnidad.toLocaleString()+ rep.unidad}}
+                    </span> 
+                </td>        
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" style="text-align: center;">No hay registros</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    </mat-card-content>
+</mat-card>
+</p-panel>

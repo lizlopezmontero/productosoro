@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "productosoro-392c3": {
+      "hosting": {
+        "productosoro": [
+          "productosoro-392c3"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "productosoro-392c3"
+  }
+}

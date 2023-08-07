@@ -1,0 +1,65 @@
+/* You can add global styles to this file, and also import other style files */
+@import "primeicons/primeicons.css";
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  min-height: 100vh;
+  background: #e2e2e2;
+}
+
+.main-card{
+  position: absolute !important;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+}
+
+.header-format{
+  padding: 6px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  span{
+    font-weight: bold;
+  }
+}
+
+.w-50{
+  min-width: 50%;
+}
+
+@media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */
+  .main-card{
+    width: 100%;
+  }
+}
+@media (min-width:481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+  .main-card{
+    width: 100%;
+  } 
+}
+@media (min-width:641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ 
+  .main-card{
+    width: 100%;
+  }
+}
+@media (min-width:961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */ 
+  .main-card{
+    width: 90%;
+  }
+}
+@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */
+  .main-card{
+    width: 80%;
+  }
+}
+@media (min-width:1281px) { 
+  .main-card{
+    width: 75%;
+  }
+}

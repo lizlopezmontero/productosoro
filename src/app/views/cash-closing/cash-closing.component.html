@@ -1,0 +1,141 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<mat-card class="main-card">
+    <mat-card-header>
+        <div class="header-format">
+          <span >Rubros de cierre de caja</span>
+          <div>
+            <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+        
+    </mat-card-header>
+    <mat-card-content>
+        <p-table #dtl styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+        [paginator]="true" [rows]="10" [showCurrentPageReport]="true"  [value]="data"
+        selectionMode="single" dataKey="id"
+        currentPageReportTemplate="Mostrando registros del {first} al {last} de {totalRecords}" [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="loading" [globalFilterFields]="['id', 'nombre', 'dolares', 'tipo']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dtl.filterGlobal($event.target.value, 'contains')" placeholder="Buscar rubro" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <!-- <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon></th> -->
+                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+                <th pSortableColumn="dolares">Dolares </th>
+                <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
+                <th style="min-width: 120px;">Acciones</th>
+            </tr>
+            <tr>
+                <!-- <th>
+                    <p-columnFilter type="text" field="id"></p-columnFilter>
+                </th> -->
+                <th>
+                    <p-columnFilter type="text" field="nombre"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="boolean" field="dolares"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="tipo"></p-columnFilter>
+                </th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-place>
+            <tr>
+                <!-- <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Id:</span> {{place.id}}</td> -->
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Nombre:</span>  {{place.nombre}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Dolares:</span> 
+                    <p-checkbox [(ngModel)]="place.dolares" [readonly]="true" [binary]="true"></p-checkbox>
+                </td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Tipo:</span>  {{place.tipo}}</td>
+                <td style="justify-content: start;">
+                    <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editar(place)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm(place)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="4" style="text-align: center;">No hay registros</td>
+            </tr>
+        </ng-template>
+        </p-table>
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>
+
+<p-dialog [header]="editando? 'Editar lugar': 'Agregar lugar'" [(visible)]="visible" [modal]="true" [style]="{ 'min-width': '300px', width: '350px' }"
+ [draggable]="true" [resizable]="true" [closable]="true" position="top">
+    <mat-card class="u-mt-3 p-3" [ngClass]="{ 'u-h-center u-mw-500': !isMobile }">
+        <mat-card-content>
+            <form [formGroup]=form (submit)="guardar()">
+
+                <mat-form-field>
+                    <mat-label>Id Rubro</mat-label>
+                    <input matInput type="text" formControlName="id" [readonly]="editando">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Nombre</mat-label>
+                    <input matInput type="text" formControlName="name">
+                    <button *ngIf="form?.get('name')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="resetValue('name')">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+                <div class="mb-3">
+                    <div class="flex align-items-center gap-2">
+                        <p-checkbox [(ngModel)]="dolares" [ngModelOptions]="{standalone: true}"
+                        [binary]="true" inputId="binary2"></p-checkbox>
+                        <label for="binary2">Dolares</label>
+                    </div>
+                </div>
+                <div class="mb-3 flex flex-wrap gap-3">
+                    <div class="flex align-items-center">
+                        <p-radioButton name="pizza" value="Ingreso" [ngModelOptions]="{standalone: true}" [(ngModel)]="tipo" inputId="ingredient1"></p-radioButton>
+                        <label for="ingredient1" class="ml-2">Ingreso</label>
+                    </div>
+                    
+                    <div class="flex align-items-center">
+                        <p-radioButton name="pizza" value="Gasto" [ngModelOptions]="{standalone: true}" [(ngModel)]="tipo" inputId="ingredient2"></p-radioButton>
+                        <label for="ingredient2" class="ml-2">Gasto</label>
+                    </div>
+                    
+                    <div class="flex align-items-center">
+                        <p-radioButton name="pizza" value="Credito" [ngModelOptions]="{standalone: true}" [(ngModel)]="tipo" inputId="ingredient3"></p-radioButton>
+                        <label for="ingredient3" class="ml-2">Credito</label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="orden" [(ngModel)]="orden"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="orden" class="w-full"></p-inputNumber>
+                        <label htmlFor="orden">Orden</label>
+                    </span>
+                </div>    
+            </form>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="guardar()" class="mr-3">Guardar</button>
+            <button mat-raised-button (click)="visible = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

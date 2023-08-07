@@ -1,0 +1,190 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <span >Clientes de productos oro</span>
+          <div>
+            <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+            <button mat-mini-fab color="warn" class="mr-2" (click)="this.filtrar = true">
+                <mat-icon *ngIf="!lugarFilter">filter_list</mat-icon>
+                <mat-icon *ngIf="lugarFilter">filter_1</mat-icon>
+            </button>
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+        [value]="clientes" 
+        selectionMode="single" dataKey="id"
+        [loading]="loading" [globalFilterFields]="['id', 'nombre', 'descripcion', 'telefono']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Buscar cliente" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <!-- <th pSortableColumn="id" >Id <p-sortIcon field="id"></p-sortIcon></th> -->
+                <th pSortableColumn="nombre" >Nombre </th>
+                <th pSortableColumn="descripcion">Detalle </th>
+                <th pSortableColumn="telefono">Telefono </th>
+                <th pSortableColumn="lugar">Lugar <p-sortIcon field="lugar"></p-sortIcon></th>
+                <th pSortableColumn="vendedor">Vendedor <p-sortIcon field="vendedor"></p-sortIcon></th>
+                <th style="min-width:110px">Acciones</th>              
+            </tr>
+            <tr>
+                <!-- <th>
+                    <p-columnFilter type="text" field="id" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th> -->
+                <th>
+                    <!-- <p-columnFilter type="text" field="nombre" matchMode="contains" [showMenu]="false"></p-columnFilter> -->
+                </th>
+                <th>
+                    <!-- <p-columnFilter type="text" field="descripcion" matchMode="contains" [showMenu]="false"></p-columnFilter> -->
+                </th>
+                <th>
+                    <!-- <p-columnFilter type="text" field="telefono" matchMode="contains" [showMenu]="false"></p-columnFilter> -->
+                </th>
+                <th>
+                    <p-columnFilter field="lugar" matchMode="equals" [showMenu]="false">
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-dropdown [ngModel]="value" [options]="lugares"
+                             (onChange)="filter($event.value)" placeholder="Todos"
+                            [showClear]="true" [filter]="true" filterBy="nombre" appendTo="body"
+                            [showClear]="true" optionValue="id" optionLabel="nombre">
+                            </p-dropdown>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter field="vendedor" matchMode="equals" [showMenu]="false">
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-dropdown [ngModel]="value" [options]="vendedores"
+                             (onChange)="filter($event.value)" placeholder="Todos"
+                            [showClear]="true" [filter]="true" filterBy="nombre" appendTo="body"
+                            [showClear]="true" optionValue="id" optionLabel="nombre">
+                            </p-dropdown>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-client >
+            <tr>
+                <!-- <td style="justify-content: start;">
+                    <span class="p-column-title font-bold w-50">Id:</span> 
+                    {{client.id}}
+                </td> -->
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Nombre:</span>  {{client.nombre}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Descripcion:</span>  {{client.descripcion}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Telefono:</span>  {{client.telefono}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Lugar:</span>  {{getLugar(client.lugar)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Vendedor:</span>  {{getVendedor(client.vendedor)}}</td>
+                <td style="justify-content: start;">
+                    <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editar(client)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm(client)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>               
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7">No hay registros</td>
+            </tr>
+        </ng-template>
+        </p-table>
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>
+
+<p-dialog [header]="editando? 'Editar cliente': 'Agregar cliente'" [(visible)]="visible" [modal]="true"
+ [style]="{ 'min-width': '300px', width: '400px'}"
+ [draggable]="true" [resizable]="true" [closable]="true" position="top" [maximizable]="true" max>
+    <mat-card class="u-mt-3 p-3" [ngClass]="{ 'u-h-center u-mw-500': !isMobile }">
+        <mat-card-content>
+            <form [formGroup]=form (submit)="guardar()">
+
+                <mat-form-field [style]="{width: '100%'}">
+                    <mat-label>Id Cliente</mat-label>
+                    <input matInput type="text" formControlName="id" [readonly]="true">
+                </mat-form-field>
+                <mat-form-field [style]="{width: '100%'}">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput type="text" formControlName="name">
+                </mat-form-field>
+                <mat-form-field [style]="{width: '100%'}">
+                    <mat-label>Detalle</mat-label>
+                    <input matInput type="text" formControlName="desc">
+                </mat-form-field>
+                <mat-form-field [style]="{width: '100%'}">
+                    <mat-label >Telefono</mat-label>
+                    <input matInput type="text" formControlName="phone">
+                </mat-form-field>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="lugares" [(ngModel)]="lugarId" optionLabel="nombre" [filter]="true"
+                         filterBy="nombre" [showClear]="true" placeholder="Seleccionar un lugar" optionValue="id"
+                         name="place" inputId="place" [style]="{width: '100%'}" [ngModelOptions]="{standalone: true}"
+                         appendTo="body" (onChange)="onChangeLugar($event.value)">
+                        </p-dropdown>
+                        <label htmlFor="place">Lugar</label>
+                    </span>
+                </div>
+                <div>
+                    <span class="p-float-label">
+                        <p-dropdown [options]="vendedores" [(ngModel)]="vendedorId" optionLabel="nombre" [filter]="true"
+                         filterBy="nombre" [showClear]="true" placeholder="Seleccionar un vendedor" optionValue="id"
+                         name="seller" inputId="seller" [style]="{width: '100%'}" [ngModelOptions]="{standalone: true}"
+                         appendTo="body">
+                        </p-dropdown>
+                        <label htmlFor="seller">Vendedor</label>
+                    </span>
+                </div>
+            </form>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="guardar()" class="mr-3">Guardar</button>
+            <button mat-raised-button (click)="visible = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>
+
+
+<p-dialog header="Filtros adicionales" [(visible)]="filtrar" [modal]="true" [style]="{ 'min-width': '300px', width: '400px'}"
+[draggable]="true" [resizable]="true" [closable]="true" position="top">
+    <mat-card class="u-mt-3 p-3">
+        <mat-card-content>
+            <div class="w-full grid">
+                <div class="col-12">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="lugares" [(ngModel)]="lugarFilter" optionLabel="nombre" [filter]="true"
+                         filterBy="nombre" [showClear]="true" placeholder="Seleccionar un lugar" optionValue="id"
+                         name="place" inputId="place" [style]="{width: '100%'}" appendTo="body">
+                        </p-dropdown>
+                        <label htmlFor="place">Lugar</label>
+                    </span>
+                </div> 
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="aplicar()" class="mr-3">Aplicar</button>
+            <button mat-raised-button (click)="filtrar = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>
+

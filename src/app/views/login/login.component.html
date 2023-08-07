@@ -1,0 +1,29 @@
+<mat-card class="u-mt-3 p-3" [ngClass]="{ 'u-h-center u-mw-500': !isMobile }">
+  <mat-card-title>Productos Oro</mat-card-title>
+  <mat-card-subtitle>Ingreso de usuario</mat-card-subtitle>
+  <mat-card-content>
+      <form [formGroup]=form (submit)="login()">
+
+          <mat-form-field>
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email">
+              <button *ngIf="form?.get('email')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="resetValue('email')">
+                  <mat-icon>close</mat-icon>
+              </button>
+          </mat-form-field>
+
+          <mat-form-field>
+              <mat-label>Contraseña</mat-label>
+              <input matInput type="password" formControlName="password">
+              <button *ngIf="form?.get('password')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="resetValue('password')">
+                  <mat-icon>close</mat-icon>
+              </button>
+          </mat-form-field>
+
+          <a routerLink="/reset-password">¿Olvido la contraseña?</a>
+      </form>
+  </mat-card-content>
+  <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="login()">Ingresar</button>
+  </mat-card-actions>
+</mat-card>

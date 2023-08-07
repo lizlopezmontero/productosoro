@@ -1,0 +1,98 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<mat-card class="main-card">
+    <mat-card-header>
+        <div class="header-format">
+          <span >Lugares de visita</span>
+          <div>
+            <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+        
+    </mat-card-header>
+    <mat-card-content>
+        <p-table #dtl styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+        [paginator]="true" [rows]="10" [showCurrentPageReport]="true"  [value]="lugares"
+        selectionMode="single" dataKey="id"
+        currentPageReportTemplate="Mostrando registros del {first} al {last} de {totalRecords}" [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="loading" [globalFilterFields]="['id', 'nombre']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dtl.filterGlobal($event.target.value, 'contains')" placeholder="Buscar lugar" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+                <th style="min-width:110px">Acciones</th>
+            </tr>
+            <tr>
+                <th>
+                    <p-columnFilter type="text" field="id"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="nombre"></p-columnFilter>
+                </th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-place>
+            <tr>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Id:</span> {{place.id}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Nombre:</span>  {{place.nombre}}</td>
+                <td style="justify-content: start;">
+                    <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editar(place)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm(place)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="2">No hay registros</td>
+            </tr>
+        </ng-template>
+        </p-table>
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>
+
+<p-dialog [header]="editando? 'Editar lugar': 'Agregar lugar'" [(visible)]="visible" [modal]="true" [style]="{ 'min-width': '300px', width: '350px' }"
+ [draggable]="true" [resizable]="true" [closable]="true" position="top">
+    <mat-card class="u-mt-3 p-3" [ngClass]="{ 'u-h-center u-mw-500': !isMobile }">
+        <mat-card-content>
+            <form [formGroup]=form (submit)="guardar()">
+
+                <mat-form-field>
+                    <mat-label>Id Lugar</mat-label>
+                    <input matInput type="text" formControlName="id" [readonly]="editando">
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Nombre</mat-label>
+                    <input matInput type="text" formControlName="name">
+                    <button *ngIf="form?.get('name')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="resetValue('name')">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+            </form>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="guardar()" class="mr-3">Guardar</button>
+            <button mat-raised-button (click)="visible = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

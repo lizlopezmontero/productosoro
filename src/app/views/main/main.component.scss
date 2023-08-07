@@ -1,0 +1,45 @@
+.contenido{
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 70%;
+    .contenedor{
+        /*
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        overflow-x: auto;
+        */
+        .example-card{
+            max-width: 165px;
+            text-align: center;
+            img{
+                text-align: center;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    }
+}
+
+.mat-mdc-card-header{
+    justify-content: center;
+}
+
+.update{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -200%);
+}
+
+.wrap-text{
+    text-overflow: ellipsis;
+}
+
+
+
+
