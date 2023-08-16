@@ -35,7 +35,7 @@
         </ng-template>
         <ng-template pTemplate="header">
             <tr>
-                <th pSortableColumn="id" >Código <p-sortIcon field="id"></p-sortIcon></th>
+                <!-- <th pSortableColumn="id" >Código <p-sortIcon field="id"></p-sortIcon></th> -->
                 <th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion"></p-sortIcon></th>
                 <th pSortableColumn="precioVenta">Precio Venta <p-sortIcon field="precioVenta"></p-sortIcon></th>
                 <th pSortableColumn="existencias">Existencias <p-sortIcon field="existencias"></p-sortIcon></th>
@@ -45,9 +45,9 @@
                 <th style="min-width:100px">Acciones</th>              
             </tr>
             <tr>
-                <th>
+                <!-- <th>
                     <p-columnFilter type="text" field="id" matchMode="contains" [showMenu]="false"></p-columnFilter>
-                </th>
+                </th> -->
                 <th>
                     <p-columnFilter type="text" field="descripcion" matchMode="contains" [showMenu]="false"></p-columnFilter>
                 </th>
@@ -87,10 +87,10 @@
         </ng-template>
         <ng-template pTemplate="body" let-prod >
             <tr>
-                <td style="justify-content: start;">
+                <!-- <td style="justify-content: start;">
                     <span class="p-column-title font-bold w-50">Codigo:</span> 
                     {{prod.id}}
-                </td>
+                </td> -->
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Descripcion:</span>  {{prod.descripcion}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Precio Venta:</span>  {{prod.precioVenta.toLocaleString()}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Existencias:</span>  {{prod.existencias?.toLocaleString() ?? ''}}</td>
