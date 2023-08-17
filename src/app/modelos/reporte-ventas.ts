@@ -1,3 +1,5 @@
+import { Tarjeta } from "./tarjeta"
+
 export interface ReporteVentas{
     fecha: Date,
     lugar: string,
@@ -7,7 +9,8 @@ export interface ReporteVentas{
     ganancia: number,
     credito: number,
     costoFijo: number,
-    codLugar: string
+    codLugar: string,
+    tarjeta?: Tarjeta
 }
 
 export interface AgrupadorVentas{

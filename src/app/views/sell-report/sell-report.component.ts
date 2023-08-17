@@ -10,6 +10,7 @@ import { MessageType } from 'src/app/enums/Message';
 import { InvoiceService } from 'src/app/services/invoice.service';
 import { ProductsService } from 'src/app/services/products.service';
 import { Producto } from 'src/app/modelos/producto';
+import { Tarjeta } from 'src/app/modelos/tarjeta';
 
 @Component({
   selector: 'app-sell-report',
@@ -29,8 +30,10 @@ export class SellReportComponent implements OnInit{
   totalInversion: number = 0;
   totalCostoFijo: number = 0;
   totalCreditos: number = 0;
+  totalTC: number = 0;
   terminado: boolean = true;
   w: number;
+  tarjetas: Tarjeta[] = [];
 
   ngOnInit(): void {
     this.loading = true;
@@ -52,6 +55,7 @@ export class SellReportComponent implements OnInit{
     this.totalGanancia = this.reporte.reduce((acc, o)=> acc + o.ganancia, 0);
     this.totalCreditos = this.reporte.reduce((acc, o)=> acc + o.credito, 0);
     this.totalCostoFijo = this.reporte.reduce((acc, o)=> acc + o.costoFijo, 0);
+    this.totalTC = this.reporte.reduce((acc, o)=> acc + (o.tarjeta?.monto ?? 0), 0);
   }
 
   constructor(private service: ReportService, private config: PrimeNGConfig, private msjService: MessageService,
@@ -77,50 +81,68 @@ export class SellReportComponent implements OnInit{
     }
 
     this.loading = true;
-    this.service.getFacturas(this.fechas[0], this.fechas[1]).pipe(
+    this.service.getTarjetas(this.fechas[0], this.fechas[1]).pipe(
       catchError(e =>{
         this.loading = false;
         return throwError(()=> e)
       })
-    ).subscribe(data => {
-      const agrupador: AgrupadorVentas[] = data.map(m => { return {fecha: m.fecha.toDate(), lugar: m.lugar }});
-      const unique = agrupador.filter((obj, index) => {
-        return index === agrupador.findIndex(o => obj.fecha.getFullYear() == o.fecha.getFullYear() && obj.fecha.getDate() == o.fecha.getDate()
-        && obj.fecha.getMonth() == o.fecha.getMonth() && obj.lugar == o.lugar);
-      });
-      console.log(data.map(m => { return {fecha: m.fecha.toDate(), vendedor: m.vendedor}}));
-      this.service.getRubros(this.fechas[0], this.fechas[1]).pipe(
+    ).subscribe(tarjs => {
+      this.tarjetas = tarjs;
+      this.service.getFacturas(this.fechas[0], this.fechas[1]).pipe(
         catchError(e =>{
           this.loading = false;
           return throwError(()=> e)
         })
-      ).subscribe(rubros => {
-        const reps: ReporteVentas[] = [];
-        unique.forEach(el => {
-          const rubrosFiltrados = rubros.filter(r => r.fecha.toDate().getDate() === el.fecha.getDate() && r.fecha.toDate().getMonth() == el.fecha.getMonth()
-           && r.fecha.toDate().getFullYear() == el.fecha.getFullYear() && r.lugar === el.lugar);
-          const bruto = data.filter(r => r.fecha.toDate().getDate() === el.fecha.getDate() && r.fecha.toDate().getMonth() == el.fecha.getMonth()
-          && r.fecha.toDate().getFullYear() == el.fecha.getFullYear() && r.lugar === el.lugar).
-          reduce((acc, o) => acc + ((o.ingreso - o.devolucion)*o.precioProducto), 0); //rubrosFiltrados.reduce((acc, obj) => acc + (obj.dolares? obj.monto * obj.tipoCambio : obj.monto), 0);
-          const gasto = rubrosFiltrados.filter(rb => rb.tipo == 'Gasto').reduce((acc, obj) => acc + (obj.dolares? obj.monto * obj.tipoCambio : obj.monto), 0);
-          const credito = rubrosFiltrados.filter(rb => rb.tipo == 'Credito').reduce((acc, obj) => acc + (obj.dolares? obj.monto * obj.tipoCambio : obj.monto), 0);
-          const inversion = data.filter(r => r.fecha.toDate().getDate() === el.fecha.getDate() && r.fecha.toDate().getMonth() == el.fecha.getMonth()
-          && r.fecha.toDate().getFullYear() == el.fecha.getFullYear() && r.lugar === el.lugar).reduce((acc, o) => acc + this.getInversion(o), 0);
-          const bolsas = data.filter(r => r.fecha.toDate().getDate() === el.fecha.getDate() && r.fecha.toDate().getMonth() == el.fecha.getMonth()
-          && r.fecha.toDate().getFullYear() == el.fecha.getFullYear() && r.lugar === el.lugar).
-          reduce((acc, o) => acc + (o.costoFijo * (o.ingreso - o.devolucion)), 0);
-          const ganancia = (bruto - gasto) - inversion - credito;
-          const lug = data.find(e => e.lugar == el.lugar);
-          const lugar = lug?.nombreLugar ?? el.lugar;
-          reps.push({
-            fecha: el.fecha, lugar: lugar, bruto: bruto, neto: bruto - gasto, inversion: inversion, ganancia: ganancia, credito: credito, codLugar: el.lugar, costoFijo: bolsas
-          })
+      ).subscribe(data => {
+        const agrupador: AgrupadorVentas[] = data.map(m => { return {fecha: m.fecha.toDate(), lugar: m.lugar }});
+        const unique = agrupador.filter((obj, index) => {
+          return index === agrupador.findIndex(o => obj.fecha.getFullYear() == o.fecha.getFullYear() && obj.fecha.getDate() == o.fecha.getDate()
+          && obj.fecha.getMonth() == o.fecha.getMonth() && obj.lugar == o.lugar);
         });
-        this.reporte = reps;
-        this.calcularTotales();
-        this.loading = false
-      });
-    })
+        console.log(data.map(m => { return {fecha: m.fecha.toDate(), vendedor: m.vendedor}}));
+        this.service.getRubros(this.fechas[0], this.fechas[1]).pipe(
+          catchError(e =>{
+            this.loading = false;
+            return throwError(()=> e)
+          })
+        ).subscribe(rubros => {
+          const reps: ReporteVentas[] = [];
+          unique.forEach(el => {
+            const rubrosFiltrados = rubros.filter(r => r.fecha.toDate().getDate() === el.fecha.getDate() && r.fecha.toDate().getMonth() == el.fecha.getMonth()
+             && r.fecha.toDate().getFullYear() == el.fecha.getFullYear() && r.lugar === el.lugar);
+            const bruto = data.filter(r => r.fecha.toDate().getDate() === el.fecha.getDate() && r.fecha.toDate().getMonth() == el.fecha.getMonth()
+            && r.fecha.toDate().getFullYear() == el.fecha.getFullYear() && r.lugar === el.lugar).
+            reduce((acc, o) => acc + ((o.ingreso - o.devolucion)*o.precioProducto), 0); //rubrosFiltrados.reduce((acc, obj) => acc + (obj.dolares? obj.monto * obj.tipoCambio : obj.monto), 0);
+            const gasto = rubrosFiltrados.filter(rb => rb.tipo == 'Gasto').reduce((acc, obj) => acc + (obj.dolares? obj.monto * obj.tipoCambio : obj.monto), 0);
+            const credito = rubrosFiltrados.filter(rb => rb.tipo == 'Credito').reduce((acc, obj) => acc + (obj.dolares? obj.monto * obj.tipoCambio : obj.monto), 0);
+            const inversion = data.filter(r => r.fecha.toDate().getDate() === el.fecha.getDate() && r.fecha.toDate().getMonth() == el.fecha.getMonth()
+            && r.fecha.toDate().getFullYear() == el.fecha.getFullYear() && r.lugar === el.lugar).reduce((acc, o) => acc + this.getInversion(o), 0);
+            const bolsas = data.filter(r => r.fecha.toDate().getDate() === el.fecha.getDate() && r.fecha.toDate().getMonth() == el.fecha.getMonth()
+            && r.fecha.toDate().getFullYear() == el.fecha.getFullYear() && r.lugar === el.lugar).
+            reduce((acc, o) => acc + (o.costoFijo * (o.ingreso - o.devolucion)), 0);
+            const tarjeta = this.tarjetas.find(t => t.id == this.parseDate(el.fecha));
+            const ganancia = (bruto - gasto) - inversion - credito - (tarjeta?.monto ?? 0);
+            const lug = data.find(e => e.lugar == el.lugar);
+            const lugar = lug?.nombreLugar ?? el.lugar;
+            
+            reps.push({
+              fecha: el.fecha, lugar: lugar, bruto: bruto, neto: bruto - gasto, inversion: inversion, ganancia: ganancia, credito: credito, codLugar: el.lugar, costoFijo: bolsas, tarjeta
+            })
+          });
+          this.reporte = reps;
+          this.calcularTotales();
+          this.loading = false
+        });
+      })
+    });
+    
+  }
+
+  getValorTarjeta(fact: ReporteVentas): string{
+    if(fact.tarjeta){
+      return '₡'+fact.tarjeta.monto.toLocaleString();
+    }
+    return "₡0";
   }
 
   confirm(evt: Event, fact: ReporteVentas){
@@ -201,7 +223,8 @@ export class SellReportComponent implements OnInit{
             }
           })
           this.terminado = true;
-          this.service.removeFacturas(data.map(f => f.id), rubs.map(r => r.id), productosModificados).then(_ => this.get()).catch(e => console.log(e))
+          this.service.removeFacturas(data.map(f => f.id), rubs.map(r => r.id), productosModificados, this.tarjetas.filter(t => t.id == this.parseDate(facts.fecha))
+          ).then(_ => this.get()).catch(e => console.log(e))
           this.loading = false;
         }else{
           this.loading = false;
@@ -209,6 +232,12 @@ export class SellReportComponent implements OnInit{
       })
       
     })
+  }
+
+  parseDate(date: Date): string{
+    const mes = date.getMonth() + 1;
+    const dia = date.getDate();
+    return date.getFullYear() + '-' + (mes > 9 ? ''+mes: '0'+mes) + '-' + (dia > 9 ? ''+dia: '0'+dia);
   }
 
   actualizar(event: Event, facts: ReporteVentas){

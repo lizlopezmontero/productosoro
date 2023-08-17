@@ -55,14 +55,21 @@
                 </span>
              </div>
              <div class="col-12 grid">
-                <div class="col-5">
+                <div class="col-3">
                     <p-button label="Buscar" icon="pi pi-search" (onClick)="getAll()" styleClass="p-button-raised p-button-info"></p-button>
                 </div>
-                <div class="col-7">
+                <div class="col-4">
                     <span class="p-float-label">
                         <p-inputNumber inputId="tot" [readonly]="true" [(ngModel)]="sumaTotal"
                             prefix="₡" styleClass="w-full" class="w-full"></p-inputNumber>
                         <label htmlFor="tot">Total Diario</label>
+                    </span>
+                </div>
+                <div class="col-5">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="tarj" [(ngModel)]="tarjeta.monto"
+                            prefix="₡" styleClass="w-full" class="w-full"></p-inputNumber>
+                        <label htmlFor="tarj">Gasto Tarjeta</label>
                     </span>
                 </div>
                 

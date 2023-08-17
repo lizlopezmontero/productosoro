@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { Facturacion } from '../modelos/facturacion';
 import { Rubro } from '../modelos/rubro';
 import { Producto } from '../modelos/producto';
+import { Tarjeta } from '../modelos/tarjeta';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,14 @@ export class ReportService {
   constructor(private readonly firestore: Firestore) { 
     this.factCollection = collection(this.firestore, 'factura');
     this.rubCollection = collection(this.firestore, 'rubros');
+  }
+
+  getTarjetas(fechaInicio: Date, fechaFin: Date){
+    if(fechaInicio.getTime() == fechaFin.getTime()){
+      fechaFin.setTime(fechaFin.getTime() + 60* 60 *1000);
+    }
+    let qry = query(collection(this.firestore, 'tarjeta'), where('fecha', '>=', fechaInicio), where('fecha', '<=', fechaFin));
+    return collectionData(qry, {idField: 'id'}) as Observable<Tarjeta[]>;
   }
 
   getRubros(fechaInicio: Date, fechaFin: Date){
@@ -68,7 +77,7 @@ export class ReportService {
     return batch.commit();
   }
 
-  removeFacturas(facturas: string[], rubros: string[], prods: Producto[]){
+  removeFacturas(facturas: string[], rubros: string[], prods: Producto[], tarjs: Tarjeta[]){
     const batch = writeBatch(this.firestore);
     facturas.forEach(f =>{
       const facDocumentReference = doc(
@@ -90,6 +99,13 @@ export class ReportService {
         `productos/${p.id}`
       );
       batch.set(prodDocumentReference, { ...p })
+    });
+    tarjs.forEach(t=> {
+      const tarjDocumentReference = doc(
+        this.firestore,
+        `tarjeta/${t.id}`
+      );
+      batch.set(tarjDocumentReference, { ...t })
     });
     return batch.commit();
   }

@@ -15,6 +15,7 @@ import { Observable } from 'rxjs';
 import { DeleteInvoice } from '../modelos/delete-invoce';
 import { Producto } from '../modelos/producto';
 import { Rubro } from '../modelos/rubro';
+import { Tarjeta } from '../modelos/tarjeta';
 
 const urlTipoCambio = 'https://tipodecambio.paginasweb.cr/api'
 
@@ -35,11 +36,17 @@ export class InvoiceService {
     return this.http.get<TipoCambio>(urlTipoCambio)
   }
 
+  getTarjetas(fecha: Date){
+    const day = 60 * 60 * 24 * 1000;
+    const endDate = new Date(fecha.getTime() + day)
+    let qry = query(collection(this.firestore, 'tarjeta'), where('fecha', '>=', fecha), where('fecha', '<', endDate));
+    return collectionData(qry, {idField: 'id'}) as Observable<Tarjeta[]>;
+  }
+
   getAll(fecha: Date, lugar: string, vendedor: string){
     //fecha.setHours(-6)
     const day = 60 * 60 * 24 * 1000;
     const endDate = new Date(fecha.getTime() + day)
-    console.log(vendedor)
     let qry = query(this.factCollection, where('fecha', '>=', fecha), where('fecha', '<', endDate));
     if(lugar){
       qry = query(qry, where('lugar', '==', lugar))
@@ -85,7 +92,7 @@ export class InvoiceService {
     return collectionData(this.factCollection, {idField: 'id'}) as Observable<Facturacion[]>;
   }
 
-  insertMultipleRows(facturas: Facturacion[], prods: Producto[], deletes: DeleteInvoice[]){
+  insertMultipleRows(facturas: Facturacion[], prods: Producto[], deletes: DeleteInvoice[], tarjeta: Tarjeta){
     const batch = writeBatch(this.firestore);
     facturas.forEach(f =>{
       const facDocumentReference = doc(
@@ -115,10 +122,15 @@ export class InvoiceService {
       batch.set(prodDocumentReference, { ...t.producto });
       batch.delete(facDocumentReference)
     })
+    const tarjDocumentReference = doc(
+      this.firestore,
+      `tarjeta/${tarjeta.id}`
+    );
+    batch.set(tarjDocumentReference, { ...tarjeta });
     return batch.commit();
   }
 
-  storeRubros(updateRubros: Rubro[], deleteRubros: Rubro[]){
+  storeRubros(updateRubros: Rubro[], deleteRubros: Rubro[], tarjeta: Tarjeta){
     const batch = writeBatch(this.firestore);
     updateRubros.forEach(u => {
       const rubDocumentReference = doc(
@@ -134,6 +146,11 @@ export class InvoiceService {
       );
       deleteDoc(rubDocumentReference);
     });
+    const tarjDocumentReference = doc(
+      this.firestore,
+      `tarjeta/${tarjeta.id}`
+    );
+    batch.set(tarjDocumentReference, { ...tarjeta });
     return batch.commit();
   }
 

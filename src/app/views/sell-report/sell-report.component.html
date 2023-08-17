@@ -54,6 +54,7 @@
                 <th pSortableColumn="costoFijo">Bolsas / Etiquetas <p-sortIcon field="costoFijo"></p-sortIcon></th> 
                 <th pSortableColumn="ganancia">Ganancia <p-sortIcon field="ganancia"></p-sortIcon></th>   
                 <th pSortableColumn="credito">Credito <p-sortIcon field="credito"></p-sortIcon></th>
+                <th >TC </th>
                 <th >Eliminar</th>
                 <th >Act. Precios</th>            
             </tr>
@@ -86,6 +87,7 @@
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Bolsas / Etiquetas:</span>₡{{rep.costoFijo.toLocaleString()}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Ganancia:</span>₡{{rep.ganancia.toLocaleString(undefined, {maximumFractionDigits: 2})}}</td> 
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Credito:</span>₡{{rep.credito.toLocaleString()}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">TC:</span>{{getValorTarjeta(rep)}}</td>
                 <td style="justify-content: start;">
                     <span class="p-column-title font-bold w-50">Eliminar </span>
                     <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm($event, rep)">
@@ -102,7 +104,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="11" style="text-align: center;">No hay registros</td>
+                <td colspan="12" style="text-align: center;">No hay registros</td>
             </tr>
         </ng-template>
         <ng-template pTemplate="footer">
@@ -126,6 +128,9 @@
                 </td>
                 <td>
                     ₡{{totalCreditos.toLocaleString()}}         
+                </td>
+                <td>
+                    ₡{{totalTC.toLocaleString()}}         
                 </td>
                 <td colspan="2"></td>
             </tr>
@@ -157,6 +162,10 @@
         <tr class="w-full">
             <td class="w-50">Total Creditos: </td>
             <td class="w-50">₡ {{totalCreditos.toLocaleString()}}</td>
+        </tr>
+        <tr class="w-full">
+            <td class="w-50">Total TC: </td>
+            <td class="w-50">₡ {{totalTC.toLocaleString()}}</td>
         </tr>
     </table>
 

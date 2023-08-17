@@ -20,6 +20,7 @@ import { Rubro } from 'src/app/modelos/rubro';
 import { CierreCaja } from 'src/app/modelos/cierre-caja';
 import { CashClosingService } from 'src/app/services/cash-closing.service';
 import { GeneralService } from 'src/app/services/general.service';
+import { Tarjeta } from 'src/app/modelos/tarjeta';
 
 function beforeunload(e: BeforeUnloadEvent){
   var confirmationMessage = "\o/";
@@ -38,8 +39,8 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
   lugares: Lugar[] = [];
   lugarNombre: string = '';
   vendedor: string = 'v01';
-  tipoCambioActual: number = NaN;
-  tipoCambio: number = NaN;
+  tipoCambioActual: number = 500;
+  tipoCambio: number = 500;
   fecha: Date;
   lugar: string = '';
   codigoProducto: string = '';
@@ -76,6 +77,7 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
   precioCompra: number = 0;
   unidadMedida: string = 'Peso';
   costoFijo: number = 50;
+  tarjeta: Tarjeta = { id: '' , fecha: Timestamp.fromDate(new Date()), monto: 0};
   
   ngOnInit(): void {
 
@@ -343,9 +345,15 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
       return;
     }
     this.fillInvoices(newFacturas);
-    this.service.insertMultipleRows(newFacturas,this.productos, this.deletes).then(
+    this.service.insertMultipleRows(newFacturas,this.productos, this.deletes, this.tarjeta).then(
       _ => this.getAll()
     ).catch(err => console.log(err));
+  }
+
+  parseDate(date: Date): string{
+    const mes = date.getMonth() + 1;
+    const dia = date.getDate();
+    return date.getFullYear() + '-' + (mes > 9 ? ''+mes: '0'+mes) + '-' + (dia > 9 ? ''+dia: '0'+dia);
   }
 
   getAll(){
@@ -359,7 +367,22 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
     this.getNextInvoce();
     this.getAllWithOutSeller();
     this.loading = true;
-    console.log(this.fecha)
+    this.service.getTarjetas(this.fecha).pipe(
+      catchError(e =>{
+        this.loading = false;
+        return throwError(()=> e)
+      })
+    ).subscribe(data =>{
+      if(data){
+        if(data.length > 0){
+          this.tarjeta = data[0];
+        }else{
+          this.tarjeta = {id: this.parseDate(this.fecha), monto: 0, fecha: Timestamp.fromDate(this.fecha) };
+        }
+      }else{
+        this.tarjeta = {id: this.parseDate(this.fecha), monto: 0, fecha: Timestamp.fromDate(this.fecha) };
+      }
+    });
     this.service.getAll(this.fecha, this.lugar, this.vendedor).pipe(
       catchError(e =>{
         this.loading = false;
@@ -481,7 +504,7 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
     }
     const checkedElements = this.combinedRubros.filter(g => g.check == true);
     const deleteElements = this.rubros.filter(r => !checkedElements.some(c => c.id == r.id));
-    this.service.storeRubros(checkedElements, deleteElements).then(
+    this.service.storeRubros(checkedElements, deleteElements, this.tarjeta).then(
       _ => { this.visible3 = false; this.getAll() }
     ).catch(err => console.log(err));
   }
