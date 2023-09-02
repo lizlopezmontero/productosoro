@@ -67,7 +67,7 @@
                 </div>
                 <div class="col-5">
                     <span class="p-float-label">
-                        <p-inputNumber inputId="tarj" [(ngModel)]="tarjeta.monto"
+                        <p-inputNumber inputId="tarj" [(ngModel)]="tarjeta.monto" (onInput)="tarjetaChange = true"
                             prefix="₡" styleClass="w-full" class="w-full"></p-inputNumber>
                         <label htmlFor="tarj">Gasto Tarjeta</label>
                     </span>

@@ -99,7 +99,6 @@ export class SellReportComponent implements OnInit{
           return index === agrupador.findIndex(o => obj.fecha.getFullYear() == o.fecha.getFullYear() && obj.fecha.getDate() == o.fecha.getDate()
           && obj.fecha.getMonth() == o.fecha.getMonth() && obj.lugar == o.lugar);
         });
-        console.log(data.map(m => { return {fecha: m.fecha.toDate(), vendedor: m.vendedor}}));
         this.service.getRubros(this.fechas[0], this.fechas[1]).pipe(
           catchError(e =>{
             this.loading = false;

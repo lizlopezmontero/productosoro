@@ -130,6 +130,14 @@ export class InvoiceService {
     return batch.commit();
   }
 
+  storeOnlyCard(t: Tarjeta){
+    const tarjDocumentReference = doc(
+      this.firestore,
+      `tarjeta/${t.id}`
+    );
+    return setDoc(tarjDocumentReference, { ...t });
+  }
+
   storeRubros(updateRubros: Rubro[], deleteRubros: Rubro[], tarjeta: Tarjeta){
     const batch = writeBatch(this.firestore);
     updateRubros.forEach(u => {

@@ -26,9 +26,10 @@ export class ReportService {
   }
 
   getTarjetas(fechaInicio: Date, fechaFin: Date){
-    if(fechaInicio.getTime() == fechaFin.getTime()){
-      fechaFin.setTime(fechaFin.getTime() + 60* 60 *1000);
-    }
+
+    fechaFin.setTime(fechaFin.getTime() + 60 * 60 * 1000);
+    
+    console.log(fechaFin)
     let qry = query(collection(this.firestore, 'tarjeta'), where('fecha', '>=', fechaInicio), where('fecha', '<=', fechaFin));
     return collectionData(qry, {idField: 'id'}) as Observable<Tarjeta[]>;
   }

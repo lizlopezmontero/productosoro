@@ -78,6 +78,7 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
   unidadMedida: string = 'Peso';
   costoFijo: number = 50;
   tarjeta: Tarjeta = { id: '' , fecha: Timestamp.fromDate(new Date()), monto: 0};
+  tarjetaChange: boolean = false;
   
   ngOnInit(): void {
 
@@ -341,13 +342,20 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
   guardarFacturas(){
     const newFacturas = this.facturas.filter(f => f.id === '' && f.ingreso > 0);
     if(newFacturas.length == 0 && this.deletes.length == 0){
-      this.imprimitMsj("No hay cambios pendientes para guardar", MessageType.Warn, "");
-      return;
+      if(this.tarjetaChange){
+        this.service.storeOnlyCard(this.tarjeta).then(
+          _=> this.imprimitMsj("Monto de tarjeta actualizado con exito", MessageType.Success, "Mensaje")
+        ).catch(err => console.log(err));;
+      }else{
+        this.imprimitMsj("No hay cambios pendientes para guardar", MessageType.Warn, "");
+        return;
+      }
+    }else{
+      this.fillInvoices(newFacturas);
+      this.service.insertMultipleRows(newFacturas,this.productos, this.deletes, this.tarjeta).then(
+        _ => this.getAll()
+      ).catch(err => console.log(err));
     }
-    this.fillInvoices(newFacturas);
-    this.service.insertMultipleRows(newFacturas,this.productos, this.deletes, this.tarjeta).then(
-      _ => this.getAll()
-    ).catch(err => console.log(err));
   }
 
   parseDate(date: Date): string{
