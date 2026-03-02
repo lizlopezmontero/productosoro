@@ -3,7 +3,7 @@
 <mat-card class="main-card">
     <mat-card-header>
         <div class="header-format">
-          <span >Rubros de cierre de caja</span>
+          <span >Control de entradas / salidas</span>
           <div>
             <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
                 <mat-icon>add_circle</mat-icon>
@@ -35,6 +35,7 @@
                 <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
                 <th pSortableColumn="dolares">Dolares </th>
                 <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
+                <th pSortableColumn="clasificacion">Clasificación <p-sortIcon field="clasificacion"></p-sortIcon></th>
                 <th style="min-width: 120px;">Acciones</th>
             </tr>
             <tr>
@@ -50,6 +51,9 @@
                 <th>
                     <p-columnFilter type="text" field="tipo"></p-columnFilter>
                 </th>
+                <th>
+                    <p-columnFilter type="text" field="clasificacion"></p-columnFilter>
+                </th>
                 <th></th>
             </tr>
         </ng-template>
@@ -61,6 +65,7 @@
                     <p-checkbox [(ngModel)]="place.dolares" [readonly]="true" [binary]="true"></p-checkbox>
                 </td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Tipo:</span>  {{place.tipo}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Clasificación:</span>  {{place.clasificacion}}</td>
                 <td style="justify-content: start;">
                     <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editar(place)">
                         <mat-icon>edit</mat-icon>
@@ -121,6 +126,22 @@
                     <div class="flex align-items-center">
                         <p-radioButton name="pizza" value="Credito" [ngModelOptions]="{standalone: true}" [(ngModel)]="tipo" inputId="ingredient3"></p-radioButton>
                         <label for="ingredient3" class="ml-2">Credito</label>
+                    </div>
+
+                    <div class="flex align-items-center">
+                        <p-radioButton name="pizza" value="Costo" [ngModelOptions]="{standalone: true}" [(ngModel)]="tipo" inputId="ingredient4"></p-radioButton>
+                        <label for="ingredient4" class="ml-2">Costo</label>
+                    </div>
+                </div>
+                <div class="mb-3 flex flex-wrap gap-3">
+                    <div class="flex align-items-center">
+                        <p-radioButton name="pizza2" value="Ventas" [ngModelOptions]="{standalone: true}" [(ngModel)]="clasificacion" inputId="ingredient5"></p-radioButton>
+                        <label for="ingredient5" class="ml-2">Ventas</label>
+                    </div>
+                    
+                    <div class="flex align-items-center">
+                        <p-radioButton name="pizza2" value="Salidas" [ngModelOptions]="{standalone: true}" [(ngModel)]="clasificacion" inputId="ingredient6"></p-radioButton>
+                        <label for="ingredient6" class="ml-2">Salidas</label>
                     </div>
                 </div>
                 <div class="mb-3">

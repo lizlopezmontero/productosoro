@@ -1,0 +1,138 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<p-panel header="Estado de resultados" class="w-full">
+
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <div class="w-full flex align-items-center justify-content-between">
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="w-full grid">
+
+             <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <div class="flex">
+                    <span class="p-float-label">
+                        <p-calendar [(ngModel)]="fechas" selectionMode="range" appendTo="body" styleClass="w-full" [touchUI]="true"
+                         inputId="fecha" dateFormat="dd/mm/yy" [firstDayOfWeek]="1" [readonlyInput]="true"></p-calendar>
+                        <label htmlFor="fecha">Calendario</label>
+                    </span> 
+                    <div class="ml-4">
+                        <p-button label="Buscar" icon="pi pi-search" (onClick)="get()" styleClass="p-button-raised p-button-info"></p-button>
+                    </div>
+                </div>
+                
+             </div>
+             
+        </div> 
+
+        <table *ngIf="loaded" class="main-card mt-5 mb-5" id="table">
+            <thead class="bg-orange-400">
+                <tr>
+                    <th style="text-align: center;font-size: x-large;color: #fff;" colspan="2" class="w-full p-3">ESTADO DE RESULTADOS</th>
+                </tr>
+                <tr>
+                    <th style="text-align: center;font-size: large;color: #fff;" colspan="2" class="w-full p-3">{{betweenDates}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="w-full border encabezado">
+                    <td class="w-75">VENTAS </td>
+                    <td class="w-25">₡ {{ventasBrutas.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse" *ngFor="let item of creditos">
+                    <td class="w-75 border border-collapse">{{item.descripcion}}</td>
+                    <td class="w-25 border border-collapse">₡ {{item.monto.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse" *ngFor="let item of costosVentas">
+                    <td class="w-75 border border-collapse">{{item.descripcion}}</td>
+                    <td class="w-25 border border-collapse">₡ {{item.monto.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse" *ngFor="let item of costosCompras">
+                    <td class="w-75 border border-collapse">{{item.descripcion}}</td>
+                    <td class="w-25 border border-collapse">₡ {{item.monto.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border encabezado">
+                    <td class="w-75">UTILIDAD BRUTA </td>
+                    <td class="w-25">₡ {{utilidadBruta.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border encabezado">
+                    <td class="w-full" colspan="2">GASTOS DE OPERACIÓN </td>
+                </tr>
+                <tr class="w-full border border-collapse" *ngFor="let item of gastosCompras">
+                    <td class="w-75 border border-collapse">{{item.descripcion}}</td>
+                    <td class="w-25 border border-collapse">₡ {{item.monto.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse" *ngFor="let item of gastosVentas">
+                    <td class="w-75 border border-collapse">{{item.descripcion}}</td>
+                    <td class="w-25 border border-collapse">₡ {{item.monto.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse">
+                    <td class="w-75 border border-collapse">Gastos tarjeta</td>
+                    <td class="w-25 border border-collapse">₡ {{totalTarjetas.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse">
+                    <td class="w-75 border border-collapse">Gastos depreciación</td>
+                    <td class="w-25 border border-collapse">₡ {{totalDepreciaciones.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse">
+                    <td class="w-75 border border-collapse">Total gastos</td>
+                    <td class="w-25 border border-collapse">₡ {{totalGastos.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border encabezado">
+                    <td class="w-75">UTILIDAD DE OPERACIÓN </td>
+                    <td class="w-25">₡ {{utilidadOperacion.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border encabezado">
+                    <td class="w-full" colspan="2">OTROS INGRESOS, GASTOS </td>
+                </tr>
+                <tr class="w-full border border-collapse" *ngFor="let item of ingresosCompras">
+                    <td class="w-75 border border-collapse">{{item.descripcion}}</td>
+                    <td class="w-25 border border-collapse">₡ {{item.monto.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse">
+                    <td class="w-75 border border-collapse">Impuestos</td>
+                    <td class="w-25 border border-collapse">₡ {{totalImpuestos.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border encabezado">
+                    <td class="w-75">UTILIDAD DEL PERIODO </td>
+                    <td class="w-25">₡ {{utilidadPeriodo.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border encabezado">
+                    <td class="w-75">AHORROS 5% </td>
+                    <td class="w-25">₡ {{totalAhorro.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border encabezado">
+                    <td class="w-75">UTILIDAD NETA DEL PERIODO </td>
+                    <td class="w-25">₡ {{utilidadNetaPeriodo.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border encabezado">
+                    <td class="w-full" colspan="2">DATOS DE REFERENCIA </td>
+                </tr>
+                <tr class="w-full border border-collapse">
+                    <td class="w-75 border border-collapse">Inversión materia prima</td>
+                    <td class="w-25 border border-collapse">₡ {{totalInversiones.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse">
+                    <td class="w-75 border border-collapse">Inversión en bolsas</td>
+                    <td class="w-25 border border-collapse">₡ {{totalBolsas.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse">
+                    <td class="w-75 border border-collapse">Inversión en etiquetas</td>
+                    <td class="w-25 border border-collapse">₡ {{totalEtiquetas.toLocaleString()}}</td>
+                </tr>
+                <tr class="w-full border border-collapse">
+                    <td class="w-75 border border-collapse">Costos fijos del periodo</td>
+                    <td class="w-25 border border-collapse">₡ {{totalCostoFijo.toLocaleString()}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </mat-card-content>
+</mat-card>
+</p-panel>

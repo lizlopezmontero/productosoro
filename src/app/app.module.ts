@@ -38,10 +38,13 @@ import { TableModule } from 'primeng/table';
 import {MatDialogModule} from '@angular/material/dialog'; 
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
+import { ChartModule } from 'primeng/chart';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ClientComponent } from './views/client/client.component';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { BlockUIModule } from 'primeng/blockui';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { CreditComponent } from './views/credit/credit.component';
 import { PanelModule } from 'primeng/panel';
@@ -59,6 +62,20 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SellReportComponent } from './views/sell-report/sell-report.component';
 import { OrderComponent } from './views/order/order.component';
+import { CalculatorComponent } from './views/calculator/calculator.component';
+import { PrintComponent } from './views/order/print/print.component';
+import { SimulatedOrderComponent } from './views/simulated-order/simulated-order.component';
+import { InvoiceCategoryComponent } from './views/invoice-category/invoice-category.component';
+import { TaxReportComponent } from './views/tax-report/tax-report.component';
+import { AccordionModule } from 'primeng/accordion';
+import { MixesComponent } from './views/mixes/mixes.component';
+import { MixCalculatorComponent } from './views/mix-calculator/mix-calculator.component';
+import { DepreciationComponent } from './views/depreciation/depreciation.component';
+import { PurchaseComponent } from './views/purchase/purchase.component';
+import { StockExchangeComponent } from './views/stock-exchange/stock-exchange.component';
+import { LabelComponent } from './views/label/label.component';
+import { IncomeStatementComponent } from './views/income-statement/income-statement.component';
+import { SellsByProductsComponent } from './views/sells-by-products/sells-by-products.component';
 
 export class MyHammerConfig extends HammerGestureConfig {
 }
@@ -80,7 +97,20 @@ export class MyHammerConfig extends HammerGestureConfig {
     InventoryComponent,
     CashClosingComponent,
     SellReportComponent,
-    OrderComponent
+    OrderComponent,
+    CalculatorComponent,
+    PrintComponent,
+    SimulatedOrderComponent,
+    InvoiceCategoryComponent,
+    TaxReportComponent,
+    MixesComponent,
+    MixCalculatorComponent,
+    DepreciationComponent,
+    PurchaseComponent,
+    StockExchangeComponent,
+    LabelComponent,
+    IncomeStatementComponent,
+    SellsByProductsComponent
   ],
   imports: [
     BrowserModule,
@@ -98,6 +128,7 @@ export class MyHammerConfig extends HammerGestureConfig {
     MatInputModule,
     MatSnackBarModule,
     MatIconModule,
+    BlockUIModule,
     MatListModule,
     MatTooltipModule,
     MatSidenavModule,
@@ -118,7 +149,9 @@ export class MyHammerConfig extends HammerGestureConfig {
     HammerModule,
     CheckboxModule,
     MultiSelectModule,
-
+    AccordionModule,
+    BreadcrumbModule,
+    ChartModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),

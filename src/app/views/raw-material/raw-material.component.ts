@@ -30,6 +30,10 @@ export class RawMaterialComponent {
   cantidadCosto: number | null = null;
   costoFijo: number = 50;
   orden: number = 0;
+  idBolsa: string | null = null;
+  idEtiqueta: string | null = null;
+  cantidadBolsas: number | null = null;
+  cantidadEtiquetas: number | null = null;
   
   form = this.buildForm();
   isMobile = false;
@@ -72,6 +76,10 @@ export class RawMaterialComponent {
     this.selectedCategoria = l.categoria;
     this.precioCosto = l.precioCosto;
     this.cantidadCosto = l.cantidadCosto;
+    this.idBolsa = l.idBolsa ?? null;
+    this.idEtiqueta = l.idEtiqueta ?? null;
+    this.cantidadBolsas = l.cantidadBolsas ?? null;
+    this.cantidadEtiquetas = l.cantidadEtiquetas ?? null;
     this.orden = l.orden;
     this.editando = true;
     this.visible = true;
@@ -79,7 +87,8 @@ export class RawMaterialComponent {
 
 
   currentProducto(): Producto{
-    return {
+
+    var prod: Producto = {
       id: this.form?.get('id')?.value,
       descripcion: this.form?.get('desc')?.value,
       seVendeComo: this.seVendeComo,
@@ -89,8 +98,22 @@ export class RawMaterialComponent {
       precioCosto: this.precioCosto,
       existencias: this.existencias,
       cantidadCosto: this.cantidadCosto,
-      orden: this.orden
+      orden: this.orden,
     }
+
+    if(this.idBolsa){
+      prod.idBolsa = this.idBolsa
+    }
+    if(this.idEtiqueta){
+      prod.idEtiqueta = this.idEtiqueta
+    }
+    if(this.cantidadBolsas){
+      prod.cantidadBolsas = this.cantidadBolsas
+    }
+    if(this.cantidadEtiquetas){
+      prod.cantidadEtiquetas = this.cantidadEtiquetas
+    }
+    return prod;
   }
 
   costoXKilo(p: Producto): string{
@@ -174,8 +197,7 @@ export class RawMaterialComponent {
       return
     }
     if(!this.existencias){
-      this.imprimitMsj("Debe seleccionar una cantidad de existencias inicial", MessageType.Error, "Error");
-      return
+      this.existencias = 0
     }
     this.loading = true;
     this.visible = false;

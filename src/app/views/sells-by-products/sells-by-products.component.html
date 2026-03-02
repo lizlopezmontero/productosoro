@@ -1,0 +1,78 @@
+<p-toast key="ts"></p-toast>
+<p-panel [header]="'Ventas por producto'" class="w-full">
+    <p-blockUI [blocked]="loading"></p-blockUI>
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <div class="w-full flex align-items-center justify-content-between">
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="w-full grid">
+
+             <div class="grid">
+                <div class="col-12">
+                    <span class="p-float-label">
+                        <p-multiSelect [options]="lugares" [style]="{width: '100%', 'max-width': '100%'}" [(ngModel)]="lugaresSelected" inputId="lugs" optionLabel="nombre" optionValue="id"></p-multiSelect>
+                        <label for="lugs">Lugares</label>
+                    </span>
+                </div>
+                <div class="flex col-12 align-items-center justify-content-between flex-wrap">
+                    <span class="p-float-label">
+                        <p-calendar [(ngModel)]="fechas" selectionMode="range" appendTo="body" styleClass="w-full" [touchUI]="true"
+                         inputId="fecha" dateFormat="dd/mm/yy" [firstDayOfWeek]="1" [readonlyInput]="true"></p-calendar>
+                        <label htmlFor="fecha">Fechas </label>
+                    </span>
+                    <div class="ml-4">
+                        <p-button label="Buscar" icon="pi pi-search" (onClick)="get()" styleClass="p-button-raised p-button-info"></p-button>
+                    </div>
+                    <div class="ml-2 mt-2">
+                        <p-checkbox [binary]="true" [(ngModel)]="verTotales" label="Totalizar"></p-checkbox>
+                    </div>
+                    <div class="ml-2 mt-2">
+                        <p-checkbox [binary]="true" [(ngModel)]="verVentas" label="Ganancias"></p-checkbox>
+                    </div>
+                </div>
+                
+             </div>
+             
+        </div>
+        <div class="card flex justify-content-center mb-2" *ngIf="nivel < 4">
+            <p-breadcrumb class="max-w-full" [model]="items" [home]="home"></p-breadcrumb>
+        </div>
+        <div class="w-full grid mt-2" *ngIf="nivel === 1">
+            <canvas  id="ChartLugares" width="100%">{{ chartLugares }}</canvas>
+        </div>
+        <div class="w-full grid mt-2" *ngIf="nivel === 2">
+            <canvas  id="ChartCategorias" width="100%">{{ chartCategorias }}</canvas>
+        </div>
+        <div class="w-full grid mt-2" *ngIf="nivel === 3">
+            <canvas  id="ChartProductos" width="100%">{{ chartProductos }}</canvas>
+        </div>
+        <!-- <div class="w-full grid" *ngIf="nivel === 4">
+            <canvas  id="ChartProductos2" width="100%">{{ chartProductos }}</canvas>
+        </div> -->
+        <div class="w-full grid mt-3" *ngIf="nivel === 4">
+            <table class="w-full">
+                <tr>
+                    <th>Producto</th>
+                    <th>{{ventas ? 'Ganancias ₡': 'Cantidad Vendida'}}</th>
+                </tr>
+                <tr *ngFor="let item of dataFour">
+                    <td>{{item.descripcion}}</td>
+                    <td class="text-center">{{item.monto.toLocaleString()}}</td>
+                </tr>
+                <tr>
+                    <th>Total</th>
+                    <th>{{totalDataFour.toLocaleString()}}</th>
+                </tr>
+            </table>
+        </div>
+
+    </mat-card-content>
+</mat-card>
+</p-panel>

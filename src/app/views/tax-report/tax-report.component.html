@@ -1,0 +1,117 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<p-panel header="Reporte de facturación para impuestos" class="w-full">
+
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <div class="w-full flex align-items-center justify-content-between">
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+            <button mat-mini-fab color="warn" class="mr-2" (click)="visible2 = true">
+                <mat-icon *ngIf="!visible2">filter_list</mat-icon>
+                <mat-icon *ngIf="visible2">filter_1</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="w-full grid">
+            <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <span class="p-float-label">
+                    <!-- <p-dropdown [options]="vendedores" [(ngModel)]="vendedor" optionLabel="nombre"
+                        optionValue="id" inputId="ven" placeholder="Vendedor" appendTo="body" styleClass="w-full">
+                    </p-dropdown> -->
+                    <p-multiSelect [options]="vendedores" [(ngModel)]="vendedoresSelected" optionLabel="nombre" optionValue="id" inputId="ven" placeholder="Vendedor" appendTo="body" styleClass="w-full"></p-multiSelect>
+                    <label htmlFor="ven">Vendedoras</label>
+                </span>
+             </div>
+             <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <span class="p-float-label">
+                    <p-calendar [(ngModel)]="fecha" appendTo="body" styleClass="w-full" [touchUI]="true"
+                     inputId="fecha" dateFormat="dd/mm/yy" [firstDayOfWeek]="1" [readonlyInput]="true"></p-calendar>
+                    <label htmlFor="fecha">Fecha</label>
+                </span>
+             </div>
+             <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <span class="p-float-label">
+                    <p-dropdown [options]="lugares" [(ngModel)]="lugar" (onChange)="selectedLugar($event.value)" optionLabel="nombre" [filter]="true" filterBy="nombre"
+                        optionValue="id" inputId="ven" placeholder="Lugar" appendTo="body" styleClass="w-full">
+                    </p-dropdown>
+                    <label htmlFor="place">Lugar</label>
+                </span>
+             </div>
+             <div class="col-12 grid">
+                <div class="col-3">
+                    <p-button label="Buscar" icon="pi pi-search" (onClick)="getAll()" styleClass="p-button-raised p-button-info"></p-button>
+                </div>
+             </div>
+        </div>
+        <div class="w-full grid">
+            <p-accordion [multiple]="true" [activeIndex]="[0]" class="w-full">
+                <p-accordionTab [header]="cat" *ngFor="let cat of lista">
+                    <table class="table">
+                        <tr *ngFor="let item of getTaxesByCategory(cat)" class="p-3">
+                            <td>{{item.descripcion}}</td>
+                            <td style="text-align: center;">{{item.monto}}</td>
+                        </tr>
+                        <tr class="p-3" style="background-color: black;color: white;" *ngIf="getSubtotalByCategory(cat) > 0">
+                            <td>Subtotal</td>
+                            <td style="text-align: center;">{{getSubtotalByCategory(cat)}}</td>
+                        </tr>
+                    </table>
+                </p-accordionTab>
+            </p-accordion>
+        </div>
+    </mat-card-content>
+</mat-card>
+</p-panel>
+
+<p-dialog [(visible)]="visible2" [maximizable]="true" [modal]="true" [closable]="true">
+    <mat-card class="w-full p-3">
+        <mat-card-content>
+            <div  class="grid">
+                <div class="mb-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                        <!-- <p-dropdown [options]="vendedores" [(ngModel)]="vendedorFilter" optionLabel="nombre"
+                            optionValue="id" inputId="vend" placeholder="Vendedor" appendTo="body" styleClass="w-full">
+                        </p-dropdown> -->
+                        <p-multiSelect [options]="vendedores" [(ngModel)]="vendedoresFilterSelected" optionLabel="nombre"
+                         optionValue="id" inputId="vend" placeholder="Vendedores" appendTo="body" styleClass="w-full"></p-multiSelect>
+                        <label htmlFor="vend">Seleccionar vendedor</label>
+                    </span>
+                </div>
+                <div class="mb-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="lugares" [(ngModel)]="lugarFilter" optionLabel="nombre" [filter]="true" filterBy="nombre"
+                            optionValue="id" inputId="pla" placeholder="Lugar" appendTo="body" styleClass="w-full"
+                            (onChange)="selectLugar($event.value)">
+                        </p-dropdown>
+                        <label htmlFor="pla">Seleccione un lugar</label>
+                    </span>
+                </div>
+                <div class="mb-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="fechas" [(ngModel)]="fechaFilter"
+                             inputId="fec" placeholder="Fechas" appendTo="body" styleClass="w-full">
+                             <ng-template pTemplate="selectedItem">
+                                <div *ngIf="fechaFilter">
+                                    <div>{{ getFecha(fechaFilter) }}</div>
+                                </div>
+                            </ng-template>
+                            <ng-template let-fech pTemplate="item">
+                                <div>{{ getFecha(fech) }}</div>
+                            </ng-template>
+                        </p-dropdown>
+                        <label htmlFor="fec">Seleccione una fecha</label>
+                    </span>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="apply()" class="mr-3">Aplicar</button>
+            <button mat-raised-button (click)="visible2 = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

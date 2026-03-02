@@ -7,7 +7,7 @@ import {
   deleteDoc,
   doc
 } from '@firebase/firestore';
-import { Firestore, collectionData, docData, orderBy, query } from '@angular/fire/firestore';
+import { Firestore, collectionData, docData, orderBy, query, where } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { CierreCaja } from '../modelos/cierre-caja';
 
@@ -23,6 +23,16 @@ export class CashClosingService {
 
   getAll(){
     const qry = query(this.cierreCajaCollection, orderBy('orden'));
+    return collectionData(qry, {idField: 'id'}) as Observable<CierreCaja[]>;
+  }
+
+  getAllVentas(){
+    const qry = query(this.cierreCajaCollection, where('clasificacion', '==', 'Ventas'), orderBy('orden'));
+    return collectionData(qry, {idField: 'id'}) as Observable<CierreCaja[]>;
+  }
+
+  getAllCompras(){
+    const qry = query(this.cierreCajaCollection, where('clasificacion', '==', 'Salidas'), orderBy('orden'));
     return collectionData(qry, {idField: 'id'}) as Observable<CierreCaja[]>;
   }
 

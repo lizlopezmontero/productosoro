@@ -9,6 +9,9 @@
             <button mat-icon-button [routerLink]="['/app/inicio']">
                 <mat-icon>arrow_back</mat-icon>
             </button>
+            <button mat-mini-fab color="primary" class="mr-2" (click)="showProductosCambiar()">
+                <mat-icon>edit</mat-icon>
+            </button>
             <button mat-mini-fab color="primary" class="mr-2" (click)="nuevo3()">
                 <mat-icon>poll</mat-icon>
             </button>
@@ -19,6 +22,9 @@
             <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
                 <mat-icon>add_circle</mat-icon>
             </button>
+            <!-- <button mat-mini-fab color="accent" class="mr-2" (click)="calculateFacturas()">
+                <mat-icon>add_circle</mat-icon>
+            </button> -->
           </div>
         </div>
     </mat-card-header>
@@ -54,21 +60,22 @@
                     <label htmlFor="place">Lugar</label>
                 </span>
              </div>
-             <div class="col-12 grid">
+             <div class="w-full col-12 grid">
                 <div class="col-3">
                     <p-button label="Buscar" icon="pi pi-search" (onClick)="getAll()" styleClass="p-button-raised p-button-info"></p-button>
                 </div>
+                <div class="col-1">&nbsp;</div>
                 <div class="col-4">
-                    <span class="p-float-label">
+                    <span class="p-float-label w-100">
                         <p-inputNumber inputId="tot" [readonly]="true" [(ngModel)]="sumaTotal"
-                            prefix="₡" styleClass="w-full" class="w-full"></p-inputNumber>
+                            prefix="₡" styleClass="w-100" class="w-100" [ngClass]="'w-100'"></p-inputNumber>
                         <label htmlFor="tot">Total Diario</label>
                     </span>
                 </div>
-                <div class="col-5">
-                    <span class="p-float-label">
+                <div class="col-3">
+                    <span class="p-float-label w-100">
                         <p-inputNumber inputId="tarj" [(ngModel)]="tarjeta.monto" (onInput)="tarjetaChange = true"
-                            prefix="₡" styleClass="w-full" class="w-full"></p-inputNumber>
+                            prefix="₡" styleClass="w-100" class="w-100" [ngClass]="'w-100'"></p-inputNumber>
                         <label htmlFor="tarj">Gasto Tarjeta</label>
                     </span>
                 </div>
@@ -132,14 +139,14 @@
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Ingreso:</span>
                     <span *ngIf="inv.id; else bloq">{{inv.ingreso.toLocaleString()}}</span>  
                     <ng-template #bloq> 
-                        <p-inputNumber [(ngModel)]="inv.ingreso" [max]="9999" (onInput)="pendantChanges = true" [tabindex]="ri"
+                        <p-inputNumber [(ngModel)]="inv.ingreso" [max]="9999" (onInput)="pendantChanges = true" [tabindex]="ri+1"
                             [inputStyle]="{'max-width': '140px'}" [min]="0"></p-inputNumber>
                     </ng-template>
                 </td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Devolución:</span>
                     <span *ngIf="inv.id; else bloque">{{inv.devolucion.toLocaleString()}}</span>  
                     <ng-template #bloque> 
-                        <p-inputNumber [(ngModel)]="inv.devolucion" [max]="9999" [tabindex]="ri"
+                        <p-inputNumber [(ngModel)]="inv.devolucion" [max]="9999" [tabindex]="ri+1"
                         [inputStyle]="{'max-width': '140px'}" [min]="0"></p-inputNumber>
                     </ng-template>
                 </td>
@@ -271,7 +278,7 @@
 </p-dialog>
 
 
-<p-dialog [(visible)]="visible3" [maximizable]="true"  [modal]="true" [closable]="true" position="top">
+<p-dialog [(visible)]="visible3" [maximizable]="true"  [breakpoints]="{ '960px': '95vw' }" [style]="{ width: '70vw' }" [modal]="true" [closable]="true" position="top">
     <mat-card class="w-full p-3">
         <mat-card-content>
             <p-table #dtn styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'350px'"
@@ -301,7 +308,7 @@
                     <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Rubro:</span>  {{prod.nombreRubro}}</td>
                     <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Monto:</span>  
                         <p-inputNumber [(ngModel)]="prod.monto" [readonly]="!prod.check"
-                        class="w-adjust" styleClass="w-adjust" inputStyleClass="w-adjust"
+                        class="w-full" styleClass="w-full" inputStyleClass="w-full"
                         (onInput)="pendantChanges = true"></p-inputNumber>
                     </td>           
                 </tr>
@@ -328,4 +335,43 @@
             <button mat-raised-button (click)="visible3 = false">Cerrar</button>
         </mat-card-actions>
     </mat-card>
+</p-dialog>
+
+<p-dialog header="Cambio de precios rápido" [(visible)]="showCambios" [breakpoints]="{ '960px': '95vw' }" [style]="{ width: '60vw' }" [draggable]="true" [resizable]="true" [modal]="true">
+    <p>
+        <p-table [value]="productosCambiar" selectionMode="multiple" [(selection)]="selectedProductosCambiar" [metaKeySelection]="false" dataKey="id" 
+        [tableStyle]="{ 'min-width': '50rem' }">
+            <ng-template pTemplate="caption">
+                <div class="flex flex-wrap align-items-center">                   
+                    <div class="ml-3" *ngFor="let c of categorias">
+                        <p-checkbox name="categories" [value]="c" [(ngModel)]="selectedCategorias" (onChange)="changeCategorias()" [label]="c"></p-checkbox>
+                    </div>
+                    <div class="ml-3">
+                        <p-inputNumber [(ngModel)]="precioCambiar"></p-inputNumber>
+                    </div>
+                    <div class="ml-3">
+                        <button mat-raised-button color="primary" (click)="applyCambios()">Aplicar</button>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 4rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th>Producto</th>
+                    <th>Precio Actual</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-product let-rowIndex="rowIndex">
+                <tr [pSelectableRow]="product" [pSelectableRowIndex]="rowIndex">
+                    <td>
+                        <p-tableCheckbox [value]="product"></p-tableCheckbox>
+                    </td>
+                    <td>{{ product.descripcion }}</td>
+                    <td>{{ product.precioVenta }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p>
 </p-dialog>

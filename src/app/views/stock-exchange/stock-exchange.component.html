@@ -1,0 +1,129 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <span >Bolsas para productos</span>
+          <div>
+            <button mat-mini-fab color="primary" aria-label="productos" [routerLink]="['/app/productos']">
+                <mat-icon>shopping_basket</mat-icon>
+            </button>
+          </div>
+          <div>
+            <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+        [value]="bolsas" 
+        selectionMode="single" dataKey="id"
+        [loading]="loading" 
+        [globalFilterFields]="['id', 'descripcion', 'precioKilo', 'unidadKilo']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Buscar bolsa" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <!-- <th pSortableColumn="id" >Código <p-sortIcon field="id"></p-sortIcon></th> -->
+                <th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion"></p-sortIcon></th>
+                <th pSortableColumn="precioKilo">Precio por kilo <p-sortIcon field="precioKilo"></p-sortIcon></th>
+                <th pSortableColumn="unidadKilo">Unidades por kilo <p-sortIcon field="unidadKilo"></p-sortIcon></th>
+                <th style="min-width:100px">Acciones</th>              
+            </tr>
+            <tr>
+                <!-- <th>
+                    <p-columnFilter type="text" field="id" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th> -->
+                <th>
+                    <p-columnFilter type="text" field="descripcion" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="precioKilo" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="unidadKilo" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-bolsa >
+            <tr>
+                <!-- <td style="justify-content: start;">
+                    <span class="p-column-title font-bold w-50">Codigo:</span> 
+                    {{prod.id}}
+                </td> -->
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Descripcion:</span>  {{bolsa.descripcion}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Precio por kilo:</span>  {{bolsa.precioKilo.toLocaleString()}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Unidades por kilo:</span>  {{bolsa.unidadKilo.toLocaleString()}}</td>
+                <td style="justify-content: start;">
+                    <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editar(bolsa)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm(bolsa)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>               
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7">No hay registros</td>
+            </tr>
+        </ng-template>
+        </p-table>
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>
+
+<p-dialog [header]="editando? 'Editar bolsas': 'Agregar bolsas'" [(visible)]="visible" [modal]="true"
+ [style]="{ 'min-width': '300px', width: '400px'}"
+ [draggable]="true" [resizable]="true" [closable]="true" position="top" [maximizable]="true" max>
+    <mat-card class="u-mt-3 p-3" [ngClass]="{ 'u-h-center u-mw-500': !isMobile }">
+        <mat-card-content>
+            <form [formGroup]=form (submit)="guardar()">
+
+                <mat-form-field [style]="{width: '100%'}">
+                    <mat-label>Codigo</mat-label>
+                    <input matInput type="text" formControlName="id" [readonly]="editando">
+                </mat-form-field>
+                <mat-form-field [style]="{width: '100%'}">
+                    <mat-label>Descripcion</mat-label>
+                    <input matInput type="text" formControlName="desc">
+                </mat-form-field>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="price" [(ngModel)]="precioKilo"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="price" class="w-full"></p-inputNumber>
+                        <label htmlFor="price">Precio por kilo</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="cant" [(ngModel)]="unidadKilo"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="cant" class="w-full"></p-inputNumber>
+                        <label htmlFor="cant">Unidades por kilo</label>
+                    </span>
+                </div>          
+            </form>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="guardar()" class="mr-3">Guardar</button>
+            <button mat-raised-button (click)="visible = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

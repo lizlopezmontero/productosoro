@@ -1,0 +1,165 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<p-panel header="Mezclas" class="w-full">
+
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <div class="w-full flex align-items-center justify-content-between">
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+            <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <p-table [value]="mezclas" sortField="nombre" sortMode="single" dataKey="nombre" rowGroupMode="subheader" groupRowsBy="nombre"
+         [paginator]="true" [rows]="10" [showCurrentPageReport]="true" styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines"
+          currentPageReportTemplate="Mostrando registros del {first} al {last} de {totalRecords}" 
+          [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 10%;"></th>
+                    <th style="width:50%">Producto</th>
+                    <th style="width:30%">Gramaje</th>
+                    <th style="width: 10%;">Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="groupheader" let-mix let-rowIndex="rowIndex" let-expanded="expanded">
+                <tr>
+                    <td>
+                        <button type="button" pButton pRipple [pRowToggler]="mix" class="p-button-text p-button-rounded p-button-plain mr-2" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                    </td>
+                    <td>
+                        {{mix.nombre}}
+                    </td>
+                    <td>
+                        {{mix.gramaje}} (grs.)
+                    </td>
+                    <td>
+                        <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editData(mix)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm(mix, 0)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-mix>
+                <tr>
+                    <td colspan="4">
+                        <p-table [value]="productMix(mix)" dataKey="id" [loading]="loading"
+                        styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines"
+                        responsiveLayout="stack" [breakpoint]="'799px'">
+                        <ng-template pTemplate="caption">
+                            <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo2(mix.id)">
+                                <mat-icon>add_circle</mat-icon>
+                            </button>
+                        </ng-template>
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width: 40%;" pSortableColumn="producto">Producto <p-sortIcon field="producto"></p-sortIcon></th>
+                                <th style="width: 40%;" pSortableColumn="cantidad" >Cantidad <p-sortIcon field="cantidad"></p-sortIcon></th>
+                                <th style="width: 20%;">Acciones</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-detail >
+                            <tr>
+                                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Producto:</span>  {{getProductInfo(detail.producto)}}</td>
+                                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Cantidad:</span>  {{detail.cantidad.toLocaleString()}}</td>
+                                <td style="justify-content: start;">
+                                    <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editData2(detail, mix.id)">
+                                        <mat-icon>edit</mat-icon>
+                                    </button>
+                                    <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm(detail,1)">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr   >
+                                <td colspan="3">Sin productos</td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="summary">
+                            <tr>
+                                <td colspan="3" style="text-align: right">Total gramaje: {{calculateMixTotal(mix)}} gramos</td>
+                            </tr>
+                        </ng-template>
+                       </p-table>
+                    </td>
+                </tr>       
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4">No hay registros</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>
+</p-panel>
+
+<p-dialog header="Agregar mezcla" [(visible)]="visible" [modal]="true" [style]="{ 'min-width': '300px', width: '400px'}"
+[draggable]="true" [resizable]="true" [closable]="true" position="top" (onHide)="hide()">
+    <mat-card class="u-mt-3 p-3">
+        <mat-card-content>
+            <div class="w-full grid">
+                <div class="col-12">
+                    <span class="p-float-label">
+                        <input type="text" [(ngModel)]="selectedMezcla.nombre" pInputText styleClass="w-full" inputId="name" class="w-full">
+                        <label htmlFor="name">Nombre</label>
+                    </span>
+                </div>
+                <div class="col-12">
+                    <span class="p-float-label">
+                        <p-inputNumber [(ngModel)]="selectedMezcla.gramaje" inputId="amount" mode="decimal" styleClass="w-full" [min]="0" [max]="100000"> </p-inputNumber>
+                        <label htmlFor="amount">Gramaje</label>
+                    </span>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="guardar()" class="mr-3">Guardar</button>
+            <button mat-raised-button (click)="hide()">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>
+
+
+<p-dialog header="Agregar producto" [(visible)]="visible2" [modal]="true" [style]="{ 'min-width': '300px', width: '400px'}"
+[draggable]="true" [resizable]="true" [closable]="true" position="top" (onHide)="hide2()">
+
+<mat-card class="u-mt-3 p-3">
+    <mat-card-content>
+        <div class="w-full grid">
+            <div class="col-12">
+                <span class="p-float-label">
+                    <p-dropdown [options]="productos" [(ngModel)]="selectedMezclaProducto.producto" [filter]="true" filterBy="descripcion" styleClass="w-full"
+                    optionValue="id" inputId="sell" optionLabel="descripcion" placeholder="Producto" appendTo="body" [readonly]="editando"></p-dropdown>
+                    <label htmlFor="sell">Producto</label>
+                </span>
+            </div> 
+
+            <div class="col-12">
+                <span class="p-float-label">
+                    <p-inputNumber [(ngModel)]="selectedMezclaProducto.cantidad" inputId="amount2" mode="decimal" styleClass="w-full" [min]="0" [max]="100000"> </p-inputNumber>
+                    <label htmlFor="amount2">Cantidad (gramos)</label>
+                </span>
+            </div>
+        </div>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="guardar2()" class="mr-3">Guardar</button>
+        <button mat-raised-button (click)="hide2()">Cerrar</button>
+    </mat-card-actions>
+</mat-card>
+</p-dialog>

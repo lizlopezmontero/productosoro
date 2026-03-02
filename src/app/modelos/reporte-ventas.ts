@@ -9,6 +9,9 @@ export interface ReporteVentas{
     ganancia: number,
     credito: number,
     costoFijo: number,
+    impuesto: number,
+    etiquetas: number,
+    bolsas: number,
     codLugar: string,
     tarjeta?: Tarjeta
 }

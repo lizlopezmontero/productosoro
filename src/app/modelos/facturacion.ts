@@ -17,5 +17,12 @@ export interface Facturacion{
     cantidadCompra: number,
     cantidad: number,
     unidadMedida: string,
-    costoFijo: number
+    costoFijo: number,
+    categoriaFacturacion?: string,
+    idEtiqueta?: string,
+    etiqueta?: string,
+    montoEtiquetas?: number,
+    idBolsa?: string,
+    bolsa?: string,
+    montoBolsas?: number
 }

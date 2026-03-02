@@ -44,7 +44,7 @@
                     <span class="p-column-title font-bold w-50">Codigo:</span> 
                     {{prod.id}}
                 </td>
-                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Descripcion:</span>  {{prod.descripcion}}</td>
+                <td (contextmenu)="onShowData($event,prod.id)" style="justify-content: start;"><span class="p-column-title font-bold w-50">Descripcion:</span>  {{prod.descripcion}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Existencias:</span>  
                     <p-inputNumber [(ngModel)]="prod.existencias"
                        class="w-adjust" styleClass="w-adjust" inputStyleClass="w-adjust"
@@ -59,14 +59,54 @@
         </ng-template>
         <ng-template pTemplate="footer">
             <tr>
+                <td colspan="2">Total  Maní</td>
+                <td>{{subtotales('Maní')}}</td>
+            </tr>
+            <tr>
+                <td colspan="2">Total  Semillas</td>
+                <td>{{subtotales('Semillas')}}</td>
+            </tr>
+            <tr>
+                <td colspan="2">Total  Cajetas</td>
+                <td>{{subtotales('Cajetas')}}</td>
+            </tr>
+            <tr>
+                <td colspan="2">Total  Deshidratado</td>
+                <td>{{subtotales('Deshidratado')}}</td>
+            </tr>
+            <tr>
+                <td colspan="2">Total  Productos</td>
+                <td>{{subtotales('')}}</td>
+            </tr>
+            <tr>
+                <td colspan="2">Costo total Productos</td>
+                <td>{{costoTotal()}}</td>
+            </tr>
+            <tr>
                 <td colspan="3">
                     <button mat-raised-button color="primary" (click)="guardar()">Guardar</button>
                 </td>
             </tr>
         </ng-template>
         </p-table>
+        
     </mat-card-content>
     <mat-card-footer>
         <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
     </mat-card-footer>
 </mat-card>
+<p-dialog [header]="'Informacion de cambios'" [(visible)]="showHistorico" [modal]="true"
+ [style]="{ 'min-width': '300px', width: '400px'}"
+ [draggable]="true" [resizable]="true" [closable]="true" position="top" [maximizable]="true" max>
+    <mat-card class="u-mt-3 p-3">
+        <mat-card-content>
+            <p><b>Producto:</b> {{historico.descProducto}}</p>
+            <p><b>Fecha cambio:</b> {{convertFecha(historico.fecha)}}</p>
+            <p><b>Inv. Anterior:</b> {{historico.cantidadAnterior}}</p>
+            <p><b>Inv. Actual:</b> {{historico.cantidadNueva}}</p>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button (click)="showHistorico = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

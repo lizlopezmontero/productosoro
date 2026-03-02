@@ -1,0 +1,75 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<p-panel header="Calculadora de mezclas" class="w-full">
+
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <div class="w-full flex align-items-center justify-content-between">
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="w-full grid">
+             <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <span class="p-float-label">
+                    <p-dropdown [options]="data" [(ngModel)]="producto" optionLabel="nombre" inputId="ven" optionValue="id" (onChange)="changeProducto($event.value)"
+                    placeholder="Mezclas" appendTo="body" styleClass="w-full" [filter]="true" filterBy="nombre">
+                    </p-dropdown>
+                    <label htmlFor="ven">Seleccionar mezcla</label>
+                </span>
+             </div>
+             <div class="xl:col-3 lg:col-4 md:col-5 col-12">
+                <span class="p-float-label">
+                    <p-inputNumber inputId="tipoC" [(ngModel)]="cantidad" mode="decimal" autocomplete="off"
+                         styleClass="w-full" class="w-full" [maxFractionDigits]="2"></p-inputNumber>
+                    <label htmlFor="tipoC">Cantidad (Kg)</label>
+                </span>
+             </div>
+             <div class="xl:col-3 lg:col-4 md:col-1 col-12">
+                <p-button icon="pi pi-save" (onClick)="calcular()" styleClass="p-button-raised p-button-success"></p-button>
+             </div>
+             
+        </div>
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+         [value]="productosMezcla" 
+        selectionMode="single" dataKey="id"
+        [loading]="loading" [globalFilterFields]="['producto.id', 'producto.descripcionProducto', 'cantidad']">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Producto </th>
+                <th>Cantidad</th>      
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-inv let-ri="rowIndex" >
+            <tr>
+                <!-- <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Producto:</span>  {{inv.codigoProducto}}</td> -->
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Producto:</span>  {{getProductInfo(inv.producto)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Cantidad:</span>{{inv.cantidad.toLocaleString(undefined,{maximumFractionDigits: 2}) }} gramos</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="2">No hay datos</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <tr>
+                <td>Total</td>
+                <td>
+                    {{ total() }}                    
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <div *ngIf="w <= 799" class="col-12 grid">
+        <div class="col-12">
+            Total {{ total() }}        
+        </div>
+     </div>
+    </mat-card-content>
+</mat-card>
+</p-panel>

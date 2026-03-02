@@ -1,0 +1,72 @@
+<p-panel header="Pedidos por lugar" class="w-full" id="section-to-print">
+    <mat-card class="card-data">
+        <mat-card-content>
+            <div class="w-full grid">
+    
+                 <div class="grid">
+                    <div class="col-12">
+                       <b>Lugares: </b> <span>{{ lugares.join(', ') }}</span>
+                    </div>
+                    <div class="flex col-12">
+                        <b>Fechas: </b> <span>{{ printFechas() }}</span>
+                    </div>
+                    
+                 </div>
+                 
+            </div>
+            <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+            [paginator]="true" [rows]="50" [showCurrentPageReport]="true"  [value]="pedidos" 
+            selectionMode="single"
+            currentPageReportTemplate="Mostrando registros del {first} al {last} de {totalRecords}" [rowsPerPageOptions]="[10, 25, 50]"
+            [loading]="loading" [globalFilterFields]="['nombreProducto', 'ventaMaximo', 'inventarioActual', 'faltante', 'inversion', 'pedidoPesoUnidad']">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="nombreProducto" >Producto <p-sortIcon field="nombreProducto"></p-sortIcon></th>
+                    <th pSortableColumn="ventaMaximo">Maximo Venta <p-sortIcon field="ventaMaximo"></p-sortIcon></th>
+                    <th pSortableColumn="inventarioActual">Existencias Actuales <p-sortIcon field="inventarioActual"></p-sortIcon></th>
+                    <th pSortableColumn="faltante">Faltante <p-sortIcon field="faltante"></p-sortIcon></th>
+                    <th pSortableColumn="pedidoPesoUnidad">Pedido Peso / Unidad <p-sortIcon field="pedidoPesoUnidad"></p-sortIcon></th>          
+                </tr>
+                <!-- <tr>
+                    <th>
+                        <p-columnFilter type="text" field="codigoProducto" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="descripcionProducto" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="ingreso" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                    </th>
+                    <th>
+                        <p-columnFilter type="text" field="devolucion" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr> -->
+            </ng-template>
+            <ng-template pTemplate="body" let-rep >
+                <tr>
+                    <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Producto:</span>  {{rep.nombreProducto}}</td>
+                    <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Maximo Venta:</span>  {{rep.ventaMaximo.toLocaleString()}}</td>
+                    <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Existencias Actuales:</span> {{rep.inventarioActual.toLocaleString()}}</td>
+                    <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Faltante:</span>
+                        <span [ngStyle]="{'color': rep.faltante < 0 ? 'red': 'green', 'font-weight': 'bold'}">{{rep.faltante.toLocaleString()}}</span> 
+                    </td>
+                    <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Pedido Peso / Unidad:</span>
+                        <span [ngStyle]="{'color': rep.pedidoPesoUnidad < 0 ? 'red': 'green', 'font-weight': 'bold'}">
+                            {{rep.pedidoPesoUnidad.toLocaleString()+ rep.unidad}}
+                        </span> 
+                    </td>        
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="8" style="text-align: center;">No hay registros</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    
+        </mat-card-content>
+    </mat-card>
+    </p-panel>

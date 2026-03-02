@@ -8,10 +8,21 @@ export interface Producto{
     orden: number,
     precioCosto: number | null,
     existencias: number | null,
-    cantidadCosto: number | null
+    cantidadCosto: number | null,
+    idEtiqueta?: string,
+    cantidadEtiquetas?: number,
+    idBolsa?: string,
+    cantidadBolsas?: number
 }
 
 export interface Categoria{
     id: string,
     nombre: string
+}
+
+export interface TaxInvoice{
+    id: string,
+    descripcion: string,
+    categoria: string,
+    monto: number
 }

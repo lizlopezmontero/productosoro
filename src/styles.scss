@@ -15,7 +15,7 @@ body {
   position: absolute !important;
   left: 50%;
   transform: translateX(-50%);
-  width: 100%;
+  width: 50%;
 }
 
 .header-format{
@@ -31,6 +31,12 @@ body {
 
 .w-50{
   min-width: 50%;
+}
+.w-25{
+  min-width: 25%;
+}
+.w-75{
+  min-width: 75%;
 }
 
 @media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */
@@ -62,4 +68,20 @@ body {
   .main-card{
     width: 75%;
   }
+}
+@media (min-width:1360px) { 
+  .main-card{
+    width: 50%;
+  }
+}
+
+@media print {
+
+  table {
+    page-break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
+
 }

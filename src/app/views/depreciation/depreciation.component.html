@@ -1,0 +1,167 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<mat-card class="main-card">
+    <mat-card-header>
+        <div class="header-format">
+          <span >Depreciación de artículos</span>
+          <div>
+            <button mat-mini-fab color="accent" class="mr-2" (click)="nuevo()">
+                <mat-icon>add_circle</mat-icon>
+            </button>
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+        
+    </mat-card-header>
+    <mat-card-content>
+        <p-table #dtl styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+        [paginator]="true" [rows]="10" [showCurrentPageReport]="true"  [value]="depreciaciones"
+        selectionMode="single" dataKey="id"
+        currentPageReportTemplate="Mostrando registros del {first} al {last} de {totalRecords}" [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="loading" [globalFilterFields]="['articulo', 'costo', 'vida', 'residual']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dtl.filterGlobal($event.target.value, 'contains')" placeholder="Buscar articulo" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="articulo">Nombre del articulo <p-sortIcon field="articulo"></p-sortIcon></th>
+                <th pSortableColumn="costo">Costo (₡) <p-sortIcon field="costo"></p-sortIcon></th>
+                <th pSortableColumn="vida">Vida (Años) <p-sortIcon field="vida"></p-sortIcon></th>
+                <th pSortableColumn="residual">% Residual <p-sortIcon field="residual"></p-sortIcon></th>
+                <th pSortableColumn="fecha">Fecha de ingreso<p-sortIcon field="fecha"></p-sortIcon></th>
+                <th pSortableColumn="fecha">Fecha de depreciación<p-sortIcon field="fecha"></p-sortIcon></th>
+                <th pSortableColumn="fecha">Depreciación Actual (₡):<p-sortIcon field="fecha"></p-sortIcon></th>
+                <th style="min-width:110px">Acciones</th>
+            </tr>
+            <tr>
+                <th>
+                    <p-columnFilter type="text" field="articulo"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="costo"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="vida"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="residual"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="fecha"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="fecha"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="fecha"></p-columnFilter>
+                </th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-depre>
+            <tr>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Nombre del articulo:</span> {{depre.articulo}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Costo (₡):</span>  {{depre.costo.toLocaleString('es-CR')}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Vida (Años):</span>  {{depre.vida}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">% Residual:</span>  {{depre.residual}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Fecha de ingreso:</span>  {{showFecha(depre.fecha)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Fecha de depreciación:</span>  {{showDepreciationDate(depre)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Depreciación Actual (₡):</span>  {{showDepreciationAmount(depre)}}</td>
+                <td style="justify-content: start;">
+                    <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editar(depre)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm(depre)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <tr>
+                <td colspan="4">&nbsp;</td>
+                <td colspan="2">Total depreciaciones:</td>
+                <td>
+                    ₡{{totalDepreciation()}}         
+                </td>
+               
+            </tr>
+            
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="2">No hay registros</td>
+            </tr>
+        </ng-template>
+        </p-table>
+        <table *ngIf="w <= 799 && depreciaciones.length > 0" class="w-full">
+            <tr class="w-full">
+                <td class="w-50 text-bold"> <b>Total depreciaciones:</b> </td>
+                <td class="w-50 text-bold">₡ {{totalDepreciation()}}</td>
+            </tr>
+        </table>
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>
+
+<p-dialog [header]="editando? 'Editar Artículo': 'Agregar Artículo'" [(visible)]="visible" [modal]="true" [style]="{ 'min-width': '300px', width: '350px' }"
+ [draggable]="true" [resizable]="true" [closable]="true" position="top">
+    <mat-card class="u-mt-3 p-3" [ngClass]="{ 'u-h-center u-mw-500': !isMobile }">
+        <mat-card-content>
+            <form [formGroup]=form (submit)="guardar()">
+                <mat-form-field>
+                    <mat-label>Nombre</mat-label>
+                    <input matInput type="text" formControlName="articulo">
+                    <button *ngIf="form?.get('articulo')?.value" matSuffix mat-icon-button aria-label="Clear" (click)="resetValue('articulo')">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="cant" [(ngModel)]="costo" locale="es-CR"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="cant3" class="w-full" [min]="0"></p-inputNumber>
+                        <label htmlFor="cant">Costo (₡)</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="vid" [(ngModel)]="vida"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="cant" class="w-full" [min]="1" [max]="100"></p-inputNumber>
+                        <label htmlFor="vid">Vida (Años)</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="resi" [(ngModel)]="residual"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="cant2" class="w-full" [min]="0" [max]="100"></p-inputNumber>
+                        <label htmlFor="resi">% Residual</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-calendar inputId="ingreso" [(ngModel)]="fecha"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="fecha" class="w-full" dateFormat="dd/mm/yy" appendTo="body" [readonlyInput]="true" [touchUI]="true"></p-calendar>
+                        <label htmlFor="ingreso">Fecha de Ingreso</label>
+                    </span>
+                </div>
+            </form>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="guardar()" class="mr-3">Guardar</button>
+            <button mat-raised-button (click)="visible = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

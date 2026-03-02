@@ -6,10 +6,10 @@ import {
   doc,
 } from '@firebase/firestore';
 import { Firestore, Timestamp, collectionData, docData, query, where, orderBy, writeBatch } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Facturacion } from '../modelos/facturacion';
 import { Rubro } from '../modelos/rubro';
-import { Producto } from '../modelos/producto';
+import { Categoria, Producto } from '../modelos/producto';
 import { Tarjeta } from '../modelos/tarjeta';
 
 @Injectable({
@@ -29,7 +29,7 @@ export class ReportService {
 
     fechaFin.setTime(fechaFin.getTime() + 60 * 60 * 1000);
     
-    console.log(fechaFin)
+    //console.log(fechaFin)
     let qry = query(collection(this.firestore, 'tarjeta'), where('fecha', '>=', fechaInicio), where('fecha', '<=', fechaFin));
     return collectionData(qry, {idField: 'id'}) as Observable<Tarjeta[]>;
   }
@@ -59,6 +59,25 @@ export class ReportService {
     return collectionData(qry, {idField: 'id'}) as Observable<Facturacion[]>;
   }
 
+  getFacturaPorLugares(fechaInicio: Date, fechaFin: Date, lugares: string[]){
+    if(fechaInicio.getTime() == fechaFin.getTime()){
+      fechaFin.setTime(fechaFin.getTime() + 60* 60 *1000);
+    }
+    let qry = query(this.factCollection, where('fecha', '>=', fechaInicio), where('fecha', '<=', fechaFin));
+    qry = query(qry, where('lugar', 'in', lugares));
+    return firstValueFrom(collectionData(qry, {idField: 'id'}) as Observable<Facturacion[]>);
+  }
+
+  getCategorias(){
+    const qry = query(collection(this.firestore,'categorias'));
+    return firstValueFrom(collectionData(qry,{idField: 'id'}) as Observable<Categoria[]>)
+  }
+
+  async reportePorFechaLugar(fechaInicio: Date, fechaFin: Date, lugares: string[]){
+    const promises = await Promise.all([this.getFacturaPorLugares(fechaInicio,fechaFin,lugares), this.getCategorias()])
+    return promises;
+  }
+
   updateDataToCurrentValues(facturas: Facturacion[], prods: Producto[]){
     const batch = writeBatch(this.firestore);
     facturas.forEach(f =>{
@@ -74,6 +93,27 @@ export class ReportService {
         );
         batch.set(facDocumentReference, { ...f });
       }
+    });
+    return batch.commit();
+  }
+  updateDataToNewDate(facturas: Facturacion[], rubros: Rubro[], newDate: Date){
+    newDate.setHours(0,0,0,0);
+    const batch = writeBatch(this.firestore);
+    facturas.forEach(f =>{
+      f.fecha = Timestamp.fromDate(newDate);
+      const facDocumentReference = doc(
+        this.firestore,
+        `factura/${f.id}`
+      );
+      batch.set(facDocumentReference, { ...f });
+    });
+    rubros.forEach(r =>{
+      r.fecha = Timestamp.fromDate(newDate);
+      const robDocumentReference = doc(
+        this.firestore,
+        `rubros/${r.id}`
+      );
+      batch.set(robDocumentReference, { ...r });
     });
     return batch.commit();
   }

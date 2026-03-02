@@ -3,5 +3,6 @@ export interface CierreCaja{
     nombre: string,
     dolares: boolean,
     tipo: string,
-    orden: number
+    orden: number,
+    clasificacion: string
 }

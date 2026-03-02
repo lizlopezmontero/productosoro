@@ -4,8 +4,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService, ConfirmationService, ConfirmEventType } from 'primeng/api';
 import { Subscription, catchError, throwError } from 'rxjs';
 import { MessageType } from 'src/app/enums/Message';
+import { Bolsa } from 'src/app/modelos/bolsa';
+import { Etiqueta } from 'src/app/modelos/etiqueta';
 import { Categoria, Producto } from 'src/app/modelos/producto';
+import { LabelService } from 'src/app/services/label.service';
 import { ProductsService } from 'src/app/services/products.service';
+import { StockExchangeService } from 'src/app/services/stock-exchange.service';
 
 @Component({
   selector: 'app-product',
@@ -19,16 +23,21 @@ export class ProductComponent {
   visible: boolean = false;
   editando:boolean = false;
   categorias: Categoria[] = [];
+  bolsas: Bolsa[] = [];
+  etiquetas: Etiqueta[] = [];
   vendeComo: string[] = ['Peso','Cantidad'];
   seVendeComo: string = 'Peso';
   cantidad: number = 1;
   precioVenta: number = 0;
   selectedCategoria: string = 'Maní';
-  existencias: number = 1;
+  existencias: number = 0;
   precioCosto: number | null = null;
   cantidadCosto: number | null = null;
   orden: number = 0;
-
+  bolsa: string | null = null;
+  etiqueta: string | null = null;
+  cantidadBolsas: number | null = null;
+  cantidadEtiquetas: number | null = null;
   
   form = this.buildForm();
   isMobile = false;
@@ -36,11 +45,13 @@ export class ProductComponent {
 
   private subscriptions: Subscription[] = [];
   constructor(private breakpointObserver: BreakpointObserver,
-              private formBuilder: FormBuilder, private serviceProducto: ProductsService,
+              private formBuilder: FormBuilder, private serviceProducto: ProductsService, private serviceEtiquetas: LabelService, private serviceBolsas: StockExchangeService,
               private msjService: MessageService, private cfService: ConfirmationService) { }
 
   ngOnInit(): void {
     this.getCategorias();
+    this.getBolsas();
+    this.getEtiquetas();
     this.getAll();
       this.subscriptions.push(this.breakpointObserver.observe([
           Breakpoints.XSmall,
@@ -70,10 +81,14 @@ export class ProductComponent {
     this.cantidad = 1;
     this.precioVenta = 1500;
     this.selectedCategoria = 'Maní';
-    this.existencias = 1;
+    this.existencias = 0;
     this.precioCosto = null
     this.editando = false;
     this.visible = true;
+    this.bolsa = null;
+    this.etiqueta = null;
+    this.cantidadBolsas = null;
+    this.cantidadEtiquetas = null;
     this.orden = this.getNextOrden();
   }
 
@@ -94,11 +109,36 @@ export class ProductComponent {
     this.orden = l.orden;
     this.editando = true;
     this.visible = true;
+    this.bolsa = l.idBolsa ?? null;
+    this.etiqueta = l.idEtiqueta ?? null;
+    this.cantidadBolsas = l.cantidadBolsas ?? null;
+    this.cantidadEtiquetas = l.cantidadEtiquetas ?? null;
   }
 
+  getCurrentBolsa(bolsa: string | undefined): string{
+    if(!bolsa){
+      return 'Sin Bolsa'
+    }
+    const b = this.bolsas.find(b => b.id === bolsa);
+    if(b){
+      return b.descripcion;
+    }
+    return 'Sin Bolsa'
+  }
+
+  getCurrentEtiqueta(etiqueta: string | undefined): string{
+    if(!etiqueta){
+      return 'Sin Etiqueta'
+    }
+    const e = this.etiquetas.find(b => b.id === etiqueta);
+    if(e){
+      return e.descripcion;
+    }
+    return 'Sin Etiqueta'
+  }
 
   currentProducto(): Producto{
-    return {
+    let product: Producto = {
       id: this.form?.get('id')?.value,
       descripcion: this.form?.get('desc')?.value,
       seVendeComo: this.seVendeComo,
@@ -110,6 +150,13 @@ export class ProductComponent {
       cantidadCosto: this.cantidadCosto,
       orden: this.orden
     }
+    if(this.bolsa && this.cantidadBolsas){
+      product = {...product, idBolsa: this.bolsa, cantidadBolsas: this.cantidadBolsas}
+    }
+    if(this.etiqueta && this.cantidadEtiquetas){
+      product = {...product, idEtiqueta: this.etiqueta, cantidadEtiquetas: this.cantidadEtiquetas}
+    }
+    return product;
   }
 
   getNextOrden(): number{
@@ -136,6 +183,24 @@ export class ProductComponent {
       })
     ).subscribe(data =>{
       this.categorias = data
+     })
+  }
+  getBolsas(){
+    this.serviceBolsas.getAll().pipe(
+      catchError(e =>{
+        return throwError(()=> e)
+      })
+    ).subscribe(data =>{
+      this.bolsas = data
+     })
+  }
+  getEtiquetas(){
+    this.serviceEtiquetas.getAll().pipe(
+      catchError(e =>{
+        return throwError(()=> e)
+      })
+    ).subscribe(data =>{
+      this.etiquetas = data
      })
   }
 
@@ -181,8 +246,7 @@ export class ProductComponent {
       return
     }
     if(!this.existencias){
-      this.imprimitMsj("Debe seleccionar una cantidad de existencias inicial", MessageType.Error, "Error");
-      return
+      this.existencias = 0;
     }
     this.loading = true;
     this.visible = false;

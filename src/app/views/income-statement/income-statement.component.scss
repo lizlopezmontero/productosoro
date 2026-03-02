@@ -1,0 +1,27 @@
+.card-data{
+    position: absolute !important;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    padding: .2rem;
+  }
+
+  .v-center{
+    padding: 2px 0;
+  }
+
+  .border{
+    border: 1px solid black !important;
+  }
+
+  .border-collapse{
+    border-collapse: collapse !important;
+  }
+  .encabezado{
+    font-weight: bold;
+    font-size: larger;
+    background-color: bisque;
+  }
+  #table > tbody > tr > td{
+    padding: 5px;
+  }

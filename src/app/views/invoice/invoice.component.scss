@@ -13,3 +13,19 @@
   ::ng-deep .p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(2n){
     background-color: #fcd1c6 !important;
   }
+
+  ::ng-deep .w-100{
+    width: 120px !important;
+    max-width: 120px !important;
+    display: block !important;
+  }
+
+  ::ng-deep #tot{
+    max-width: 120px !important;
+    width: 120px !important;
+  }
+
+  ::ng-deep #tarj{
+    max-width: 120px !important;
+    width: 120px !important;
+  }

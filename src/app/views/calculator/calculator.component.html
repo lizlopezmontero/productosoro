@@ -1,0 +1,120 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<p-panel header="Calculadora de semillas" class="w-full">
+
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <div class="w-full flex align-items-center justify-content-between">
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="w-full grid">
+             <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <span class="p-float-label">
+                    <p-dropdown [options]="productos" [(ngModel)]="producto" optionLabel="descripcion" inputId="ven" 
+                    placeholder="Productos" appendTo="body" styleClass="w-full" [filter]="true" filterBy="descripcion">
+                    </p-dropdown>
+                    <label htmlFor="ven">Seleccionar producto</label>
+                </span>
+             </div>
+             <div class="xl:col-3 lg:col-4 md:col-5 col-12">
+                <span class="p-float-label">
+                    <p-inputNumber inputId="tipoC" [(ngModel)]="cantidad"
+                         styleClass="w-full" class="w-full"></p-inputNumber>
+                    <label htmlFor="tipoC">Cantidad</label>
+                </span>
+             </div>
+             <div class="xl:col-3 lg:col-4 md:col-1 col-12">
+                <p-button icon="pi pi-save" (onClick)="agregarProducto()" styleClass="p-button-raised p-button-success"></p-button>
+             </div>
+             
+        </div>
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
+         [value]="data" 
+        selectionMode="single" dataKey="id"
+        [loading]="loading" [globalFilterFields]="['producto.id', 'producto.descripcionProducto', 'cantidad']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Buscar producto" class="mr-2" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="producto.descripcion">Descripcion <p-sortIcon field="producto.descripcion"></p-sortIcon></th>
+                <th pSortableColumn="cantidad">Cantidad <p-sortIcon field="cantidad"></p-sortIcon></th>
+                <!-- <th pSortableColumn="producto.precioVenta">Precio Sugerido <p-sortIcon field="producto.precioVenta"></p-sortIcon></th> -->
+                <th pSortableColumn="producto.precioCosto">Costo producto <p-sortIcon field="producto.precioCosto"></p-sortIcon></th>
+                <!-- <th >Ganancia Bruta</th> -->
+                <th style="min-width:100px">Eliminar</th>              
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-inv let-ri="rowIndex" >
+            <tr>
+                <!-- <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Producto:</span>  {{inv.codigoProducto}}</td> -->
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Descripción:</span>  {{inv.producto.descripcion}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Cantidad:</span>
+                    <span *ngIf="!inv.editando; else bloq" (click)="inv.editando = true" style="display: block;">{{inv.cantidad}}</span>  
+                    <ng-template #bloq> 
+                        <p-inputNumber [(ngModel)]="inv.cantidad" [max]="9999" (onBlur)="inv.editando = false" [tabindex]="ri"
+                            [inputStyle]="{'max-width': '100px'}" [min]="0"></p-inputNumber>
+                    </ng-template>
+                </td>
+                <!-- <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Precio Sugerido:</span>
+                    ₡ {{ ( (inv.producto.precioVenta * inv.cantidad) / inv.producto.cantidad).toLocaleString() }}
+                </td> -->
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50"> Costo producto:</span>
+                     ₡ {{(( inv.producto.precioCosto * inv.cantidad ) / inv.producto.cantidadCosto).toLocaleString()}}
+                </td>
+                <!-- <td style="justify-content: start;"><span class="p-column-title font-bold w-50"> Ganancia Bruta:</span>
+                    ₡ {{((( inv.producto.precioVenta * inv.cantidad ) / inv.producto.cantidad) - (( inv.producto.precioCosto * inv.cantidad ) / inv.producto.cantidadCosto) ).toLocaleString()}}
+               </td> -->
+                <td style="justify-content: start;">
+                    <button mat-mini-fab color="warn" aria-label="delete" (click)="del(ri)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>               
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="6">No se han agregado productos</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <tr>
+                <td>Totales</td>
+                <td>
+                    {{ totalCantidad() }}                    
+                </td>
+                <!-- <td>
+                    ₡{{ ventaTotal() }}                    
+                </td> -->
+                <td>
+                    ₡{{ compraTotal() }}                    
+                </td>
+                <!-- <td>
+                    ₡{{ gananciaTotal() }}                    
+                </td> -->
+                <td>&nbsp;</td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <div *ngIf="w <= 799" class="col-12 grid">
+        <div class="col-5">
+            T. cantidad: {{totalCantidad()}} 
+        </div>
+        <div class="col-7">
+            T. Costo Prod.: ₡{{compraTotal()}}
+        </div>
+     </div>
+    </mat-card-content>
+</mat-card>
+</p-panel>

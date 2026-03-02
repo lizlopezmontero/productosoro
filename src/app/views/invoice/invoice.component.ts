@@ -21,6 +21,12 @@ import { CierreCaja } from 'src/app/modelos/cierre-caja';
 import { CashClosingService } from 'src/app/services/cash-closing.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { Tarjeta } from 'src/app/modelos/tarjeta';
+import { InvoiceCategoryService } from 'src/app/services/invoice-category.service';
+import { CategoriaFacturacion } from 'src/app/modelos/categoria-facturacion';
+import { LabelService } from 'src/app/services/label.service';
+import { StockExchangeService } from 'src/app/services/stock-exchange.service';
+import { Etiqueta } from 'src/app/modelos/etiqueta';
+import { Bolsa } from 'src/app/modelos/bolsa';
 
 function beforeunload(e: BeforeUnloadEvent){
   var confirmationMessage = "\o/";
@@ -60,6 +66,8 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
   currentFactura: Facturacion;
   deletes: DeleteInvoice[] = [];
   productos: Producto[] = [];
+  etiquetas: Etiqueta[] = [];
+  bolsas: Bolsa[] = [];
   pendantChanges: boolean = false;
   w: number;
   sumaTotal: number = 0;
@@ -71,6 +79,7 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
   rubros: Rubro[] = [];
   allRubros: CierreCaja[] = [];
   combinedRubros: Rubro[] = [];
+  invoiceCategories: CategoriaFacturacion[] = [];
   nextRubro: number = 1
   cantidad: number = 0;
   cantidadCompra: number = 0;
@@ -79,19 +88,88 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
   costoFijo: number = 50;
   tarjeta: Tarjeta = { id: '' , fecha: Timestamp.fromDate(new Date()), monto: 0};
   tarjetaChange: boolean = false;
+  productosCambiar: Producto[] = [];
+  showCambios: boolean = false;
+  precioCambiar: number = 1500;
+  categorias: string[] = [];
+  selectedProductosCambiar: Producto[] = [];
+  selectedCategorias: string[] = [];
   
   ngOnInit(): void {
 
     window.addEventListener("beforeunload", beforeunload);
-
+    this.getinvoceCategories();
     this.getCostoFijo();
     this.getVendedores();
     this.getLugares();
     this.getAllRubros();  
     this.getProductos();
+    this.getEtiquetas();
+    this.getBolsas();
     this.getCurrentExchageRate();
     this.getNextInvoce();
     this.getNextRubro();
+  }
+
+  showProductosCambiar(){
+    if(!this.lugar){
+      this.imprimitMsj("Primero seleccionar un lugar", MessageType.Warn, 'Advertencia')
+      return;
+    }
+    this.showCambios = true;
+    this.getProductoCambio();
+  }
+
+  getProductoCambio(){
+    this.pService.getAll().pipe(
+      catchError(e =>{
+        this.loading = false
+        return throwError(()=> e)
+      })
+    ).subscribe(data => {
+      this.productosCambiar = data
+      this.categorias = data.map(p => p.categoria).filter(
+        (value, index, current_value) => current_value.indexOf(value) === index
+      );
+    });
+  }
+  changeCategorias(){
+    this.selectedProductosCambiar = [];
+    for(let i = 0; i < this.selectedCategorias.length; i++){
+      const mySelection = this.productosCambiar.filter(p => p.categoria == this.selectedCategorias[i]);
+      this.selectedProductosCambiar = [...this.selectedProductosCambiar, ...mySelection];
+    }
+  }
+
+  applyCambios(){
+    if(this.precioCambiar){
+      this.selectedProductosCambiar.forEach(p => p.precioVenta = this.precioCambiar);
+      this.pService.updatePrices(this.selectedProductosCambiar).then(() => {
+        this.updateInvoicePrices();
+        this.showCambios = false;
+      });
+    }
+  }
+
+  updateInvoicePrices(){
+    this.facturas.forEach(f => {
+      const prod = this.productosCambiar.find(p => p.id == f.codigoProducto);
+      if(prod){
+        f.precioProducto = prod.precioVenta;
+      }
+    });
+  }
+
+  getinvoceCategories(){
+    this.iService.getAll().pipe(
+      catchError(e =>{
+        this.loading = false
+        return throwError(()=> e)
+      })
+    ).subscribe(data =>{
+      this.invoiceCategories = data
+      this.loading = false
+     })
   }
 
   getCombinedRubros(rubros: Rubro[]){
@@ -134,7 +212,8 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
 
   constructor(private service: InvoiceService, private config: PrimeNGConfig, private cService: CreditService,
      private lService: PlacesService, private message: MessageService, private cfService: ConfirmationService,
-     private pService: ProductsService, private rService: CashClosingService, private gService: GeneralService){
+     private pService: ProductsService, private rService: CashClosingService, private gService: GeneralService,
+     private iService: InvoiceCategoryService, private serviceEtiquetas: LabelService, private serviceBolsas: StockExchangeService) {
     const date = new Date();
     date.setHours(0,0,0,0);
     this.config.setTranslation(es);
@@ -173,7 +252,7 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
   }
 
   getAllRubros(){
-    this.rService.getAll().pipe(
+    this.rService.getAllVentas().pipe(
       catchError(e =>{
         return throwError(()=> e)
       })
@@ -182,13 +261,20 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
 
   selectLugar(val:string){
     this.fechas = [];
-    const fechasReps = this.allData.filter(d => d.lugar == val).map(g => g.fecha.toDate());
-    for(let i = 0, size = fechasReps.length; i < size; i++){
-      if(!this.fechas.some(f => f.getDay() === fechasReps[i].getDay() && f.getMonth() === fechasReps[i].getMonth() && f.getFullYear() === fechasReps[i].getFullYear())){
-        this.fechas.push(fechasReps[i])
-      }
-    }
-    this.fechas = this.fechas.sort((a,b) => compareDatesSimple(a,b));
+    this.service.getInvoiceByVendedorAndLugar(val, this.vendedor).pipe(
+      catchError(e =>{
+        return throwError(()=> e)
+      })
+    ).subscribe(data => {
+        const fechasReps = data.filter(d => d.lugar == val).map(g => g.fecha.toDate());
+        for(let i = 0, size = fechasReps.length; i < size; i++){
+          if(!this.fechas.some(f => f.getDay() === fechasReps[i].getDay() && f.getMonth() === fechasReps[i].getMonth() && f.getFullYear() === fechasReps[i].getFullYear())){
+            this.fechas.push(fechasReps[i])
+          }
+        }
+        this.fechas = this.fechas.sort((a,b) => compareDatesSimple(a,b));
+    })
+    
   }
 
   selectedLugar(val: string){
@@ -243,6 +329,22 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
     ).subscribe(data => this.productos = data);
   }
 
+  getEtiquetas(){
+    this.serviceEtiquetas.getAll().pipe(
+      catchError(e =>{
+        return throwError(()=> e)
+      })
+    ).subscribe(data => this.etiquetas = data);
+  }
+
+  getBolsas(){
+    this.serviceBolsas.getAll().pipe(
+      catchError(e =>{
+        return throwError(()=> e)
+      })
+    ).subscribe(data => this.bolsas = data);
+  }
+
   getNextInvoce(){
     this.service.allInvoices().pipe(
       catchError(e =>{
@@ -274,6 +376,24 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
     this.send = false;
     this.visible = true;
   }
+
+  // calculateFacturas(){
+  //   this.service.getFacturas().pipe(
+  //     catchError(e =>{
+  //       this.loading = false;
+  //       return throwError(()=> e)
+  //     })
+  //   ).subscribe(data =>{
+  //     data.forEach(f => {
+  //       const element = this.invoiceCategories.find(c => c.id == f.codigoProducto);
+  //       if(element){
+  //         f.categoriaFacturacion = element.categoria;
+  //       }
+  //     })
+  //     console.log(data);
+  //     this.service.updateFacturas(data).then(_ => this.loading = false).catch(err => console.log(err));
+  //   })
+  // }
 
   nuevo3(){
     if(!this.lugar){
@@ -319,13 +439,33 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
   getCurrentExchageRate(){
     this.service.getTipoCambio().pipe(
       catchError(e =>{
+        this.tipoCambioActual = 500;
         return throwError(()=> e)
       })
-    ).subscribe(data => this.tipoCambioActual = Math.round(data.compra))
+    ).subscribe(data => this.tipoCambioActual = Math.round(data.venta))
   }
 
   fillInvoices(fact: Facturacion[]){
     for(let i = 0, size = fact.length; i< size; i++){ 
+      const category = this.invoiceCategories.find(c => c.id == fact[i].codigoProducto);
+      if(category){
+        fact[i].categoriaFacturacion = category.categoria;
+      }
+      const product = this.productos.find(p => p.id == fact[i].codigoProducto);
+      if(product){
+        const etiqueta = this.etiquetas.find(e => e.id == product.idEtiqueta);
+        if(etiqueta){
+          fact[i].idEtiqueta = etiqueta.id;
+          fact[i].etiqueta = etiqueta.descripcion;
+          fact[i].montoEtiquetas = (etiqueta.precioRollo / etiqueta.cantidadRollo) * (product.cantidadEtiquetas ?? 0) *  (fact[i].ingreso - fact[i].devolucion);
+        }
+        const bolsa = this.bolsas.find(b => b.id == product.idBolsa);
+        if(bolsa){
+          fact[i].idBolsa = bolsa.id;
+          fact[i].bolsa = bolsa.descripcion;
+          fact[i].montoBolsas = (bolsa.precioKilo / bolsa.unidadKilo) * (product.cantidadBolsas ?? 0) *  (fact[i].ingreso - fact[i].devolucion);
+        }
+      }
       fact[i].id = 'f'+zeroPad(this.nextInvoiceId, 17);
       fact[i].tipoCambio = this.tipoCambioActual;
       this.nextInvoiceId++;      
@@ -464,9 +604,15 @@ export class InvoiceComponent implements OnInit, OnDestroy, ComponentCanDeactiva
     if(fac.id){
       const p = this.productos.find(a => a.id == fac.codigoProducto);
       if(p){
-        if(p.existencias)
-          p.existencias = p.existencias + (fac.ingreso - fac.devolucion)
-        this.deletes.push({idFactura: fac.id, producto: p});
+        let existAnt = 0;
+        if(p.existencias){
+          const prodAnt: Producto = JSON.parse(JSON.stringify(p));
+          p.existencias = p.existencias + (fac.ingreso - fac.devolucion);
+          existAnt = prodAnt.existencias ?? 0;
+        }else{
+          p.existencias = fac.ingreso - fac.devolucion;
+        }
+        this.deletes.push({idFactura: fac.id, producto: p, existenciaAnt: existAnt});
       }
     }
     this.facturas.splice(idx, 1);

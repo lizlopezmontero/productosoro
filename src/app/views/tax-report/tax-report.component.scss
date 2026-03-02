@@ -1,0 +1,25 @@
+.card-data{
+  position: absolute !important;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  padding: .2rem;
+}
+
+.v-center{
+  padding: 2px 0;
+}
+
+::ng-deep .p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(2n){
+  background-color: #fcd1c6 !important;
+}
+
+.table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+.table>tr>td{
+  max-width: 50%;
+}

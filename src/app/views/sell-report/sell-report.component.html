@@ -21,7 +21,7 @@
                         <p-calendar [(ngModel)]="fechas" selectionMode="range" appendTo="body" styleClass="w-full" [touchUI]="true"
                          inputId="fecha" dateFormat="dd/mm/yy" [firstDayOfWeek]="1" [readonlyInput]="true"></p-calendar>
                         <label htmlFor="fecha">Calendario</label>
-                    </span>
+                    </span> 
                     <div class="ml-4">
                         <p-button label="Buscar" icon="pi pi-search" (onClick)="get()" styleClass="p-button-raised p-button-info"></p-button>
                     </div>
@@ -34,7 +34,7 @@
         [paginator]="true" [rows]="50" [showCurrentPageReport]="true"  [value]="reporte" 
         selectionMode="single"
         currentPageReportTemplate="Mostrando registros del {first} al {last} de {totalRecords}" [rowsPerPageOptions]="[10, 25, 50]"
-        [loading]="loading" [globalFilterFields]="['fecha', 'lugar', 'neto', 'bruto', 'inversion', 'inversion', 'ganancia', 'credito']">
+        [loading]="loading" [globalFilterFields]="['fecha', 'lugar', 'neto', 'bruto', 'inversion', 'costoFijo', 'impuesto', 'ganancia', 'credito', 'bolsas', 'etiquetas']">
         <ng-template pTemplate="caption">
             <div class="flex">
                 <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
@@ -51,12 +51,16 @@
                 <th pSortableColumn="bruto">Bruto <p-sortIcon field="bruto"></p-sortIcon></th>
                 <th pSortableColumn="neto">Neto <p-sortIcon field="neto"></p-sortIcon></th>
                 <th pSortableColumn="inversion">Inversion <p-sortIcon field="inversion"></p-sortIcon></th> 
-                <th pSortableColumn="costoFijo">Bolsas / Etiquetas <p-sortIcon field="costoFijo"></p-sortIcon></th> 
-                <th pSortableColumn="ganancia">Ganancia <p-sortIcon field="ganancia"></p-sortIcon></th>   
+                <th pSortableColumn="costoFijo">Ahorro fijo <p-sortIcon field="costoFijo"></p-sortIcon></th> 
+                <th pSortableColumn="bolsas">Bolsas <p-sortIcon field="bolsas"></p-sortIcon></th> 
+                <th pSortableColumn="etiquetas">Etiquetas <p-sortIcon field="etiquetas"></p-sortIcon></th> 
+                <th pSortableColumn="impuesto">Impuestos <p-sortIcon field="impuesto"></p-sortIcon></th> 
                 <th pSortableColumn="credito">Credito <p-sortIcon field="credito"></p-sortIcon></th>
                 <th >TC </th>
+                <th pSortableColumn="ganancia">Ganancia <p-sortIcon field="ganancia"></p-sortIcon></th>   
                 <th >Eliminar</th>
                 <th >Act. Precios</th>            
+                <th >Act. Fecha</th>            
             </tr>
             <!-- <tr>
                 <th>
@@ -84,10 +88,13 @@
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Bruto:</span>₡{{rep.bruto.toLocaleString()}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Neto:</span>₡{{rep.neto.toLocaleString()}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Inversion:</span>₡{{rep.inversion.toLocaleString(undefined, {maximumFractionDigits: 2})}}</td>
-                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Bolsas / Etiquetas:</span>₡{{rep.costoFijo.toLocaleString()}}</td>
-                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Ganancia:</span>₡{{rep.ganancia.toLocaleString(undefined, {maximumFractionDigits: 2})}}</td> 
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Ahorro fijo:</span>₡{{rep.costoFijo.toLocaleString()}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Bolsas:</span>₡{{rep.bolsas.toLocaleString()}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Etiquetas:</span>₡{{rep.etiquetas.toLocaleString()}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Impuestos:</span>₡{{rep.impuesto.toLocaleString(undefined, {maximumFractionDigits: 2})}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Credito:</span>₡{{rep.credito.toLocaleString()}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">TC:</span>{{getValorTarjeta(rep)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Ganancia:</span>₡{{rep.ganancia.toLocaleString(undefined, {maximumFractionDigits: 2})}}</td> 
                 <td style="justify-content: start;">
                     <span class="p-column-title font-bold w-50">Eliminar </span>
                     <button mat-mini-fab color="warn" aria-label="delete" (click)="confirm($event, rep)">
@@ -100,11 +107,17 @@
                         <mat-icon>edit</mat-icon>
                     </button>
                 </td>          
+                <td style="justify-content: start;">
+                    <span class="p-column-title font-bold w-50">Act. Fechas </span>
+                    <button mat-mini-fab color="primary" aria-label="update" (click)="onOpenSelectionReport($event, rep)">
+                        <mat-icon>calendar_month</mat-icon>
+                    </button>
+                </td>          
             </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="12" style="text-align: center;">No hay registros</td>
+                <td colspan="16" style="text-align: center;">No hay registros</td>
             </tr>
         </ng-template>
         <ng-template pTemplate="footer">
@@ -124,7 +137,13 @@
                     ₡{{totalCostoFijo.toLocaleString()}}         
                 </td>
                 <td>
-                    ₡{{totalGanancia.toLocaleString(undefined, {maximumFractionDigits: 2})}}         
+                    ₡{{totalBolsas.toLocaleString()}}         
+                </td>
+                <td>
+                    ₡{{totalEtiquetas.toLocaleString()}}         
+                </td>
+                <td>
+                    ₡{{totalImpuesto.toLocaleString(undefined, {maximumFractionDigits: 2})}}         
                 </td>
                 <td>
                     ₡{{totalCreditos.toLocaleString()}}         
@@ -132,7 +151,10 @@
                 <td>
                     ₡{{totalTC.toLocaleString()}}         
                 </td>
-                <td colspan="2"></td>
+                <td>
+                    ₡{{totalGanancia.toLocaleString(undefined, {maximumFractionDigits: 2})}}         
+                </td>
+                <td colspan="3"></td>
             </tr>
             
         </ng-template>
@@ -152,8 +174,20 @@
             <td class="w-50">₡ {{totalInversion.toLocaleString(undefined, {maximumFractionDigits: 2})}}</td>
         </tr>
         <tr class="w-full">
-            <td class="w-50">Total Bolsas/Etiquetas: </td>
+            <td class="w-50">Total Ahorro fijo: </td>
             <td class="w-50">₡ {{totalCostoFijo.toLocaleString()}}</td>
+        </tr>
+        <tr class="w-full">
+            <td class="w-50">Total Bolsas: </td>
+            <td class="w-50">₡ {{totalBolsas.toLocaleString()}}</td>
+        </tr>
+        <tr class="w-full">
+            <td class="w-50">Total Etiquetas: </td>
+            <td class="w-50">₡ {{totalEtiquetas.toLocaleString()}}</td>
+        </tr>
+        <tr class="w-full">
+            <td class="w-50">Total Impuestos: </td>
+            <td class="w-50">₡ {{totalImpuesto.toLocaleString(undefined, {maximumFractionDigits: 2})}}</td>
         </tr>
         <tr class="w-full">
             <td class="w-50">Total Ganancia: </td>
@@ -172,3 +206,40 @@
     </mat-card-content>
 </mat-card>
 </p-panel>
+<p-dialog header="Cambio de fechas" [(visible)]="openChangeDatePicker" [maximizable]="true" [modal]="true" [closable]="true">
+    <mat-card class="w-full p-3">
+        <mat-card-content>
+            <div class="grid flex flex-column">
+              <div>
+                    Fecha actual: <b>{{getFecha(currentFechaReport)}}</b>  
+              </div> 
+               <br>
+               <div>
+                    Lugar: <b>{{currentPlaceReport}}</b>
+               </div>
+            </div>
+            <div  class="grid">
+                <div class="mb-3 mt-3 col-12">
+                    <span class="p-float-label">
+                        <p-calendar [(ngModel)]="newFechaReport" appendTo="body" styleClass="w-full" inputId="fec"
+                         dateFormat="dd/mm/yy" [readonlyInput]="true"></p-calendar>
+                        <label htmlFor="fec">Seleccione una nueva fecha</label>
+                    </span>
+                </div>
+            </div>
+            <div class="grid mb-3 flex flex-column">
+                <div>
+                    Nueva fecha seleccionada:
+                </div>
+                <br>
+                <div>
+                    <b> {{getFecha(newFechaReport)}} </b>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="onChangeDate($event)" class="mr-5">Aplicar Cambio</button>
+            <button mat-raised-button (click)="openChangeDatePicker = false">Cerrar</button>
+        </mat-card-actions>
+    </mat-card>
+</p-dialog>

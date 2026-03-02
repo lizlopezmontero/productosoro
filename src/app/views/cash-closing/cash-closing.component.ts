@@ -19,8 +19,9 @@ export class CashClosingComponent implements OnInit, OnDestroy {
   editando: boolean = false;
   dolares: boolean = false;
   tipo: string = 'Ingreso';
+  clasificacion: string = 'Ventas';
 
-  cierreCaja: CierreCaja = { id: '', nombre: '', dolares: false, tipo: 'I', orden: 0 }
+  cierreCaja: CierreCaja = { id: '', nombre: '', dolares: false, tipo: 'I', orden: 0, clasificacion: 'Ventas' }
   
   form = this.buildForm();
   isMobile = false;
@@ -51,6 +52,7 @@ export class CashClosingComponent implements OnInit, OnDestroy {
     this.dolares = false;
     this.editando = false;
     this.tipo = 'Ingreso';
+    this.clasificacion = 'Ventas';
     this.orden = this.getNextOrden();
     this.visible = true;
   }
@@ -74,6 +76,7 @@ export class CashClosingComponent implements OnInit, OnDestroy {
     this.dolares = l.dolares;
     this.tipo = l.tipo;
     this.orden = l.orden;
+    this.clasificacion = l.clasificacion;
     this.editando = true;
     this.visible = true;
   }
@@ -84,7 +87,8 @@ export class CashClosingComponent implements OnInit, OnDestroy {
       nombre: this.form?.get('name')?.value,
       dolares: this.dolares,
       tipo: this.tipo,
-      orden: this.orden
+      orden: this.orden,
+      clasificacion: this.clasificacion
     }
   }
 

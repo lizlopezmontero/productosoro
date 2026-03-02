@@ -20,7 +20,7 @@
         </div>
     </mat-card-header>
     <mat-card-content>
-        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'800px'"
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'799px'"
         [value]="productos" 
         selectionMode="single" dataKey="id"
         [loading]="loading" 
@@ -42,6 +42,10 @@
                 <th pSortableColumn="categoria">Categoría <p-sortIcon field="categoria"></p-sortIcon></th>
                 <th pSortableColumn="seVendeComo">Se Vende como <p-sortIcon field="seVendeComo"></p-sortIcon></th>
                 <th pSortableColumn="cantidad">Cantidad/Peso del producto <p-sortIcon field="cantidad"></p-sortIcon></th>
+                <th pSortableColumn="idBolsa">Bolsa <p-sortIcon field="idBolsa"></p-sortIcon></th>
+                <th pSortableColumn="cantidadBolsas">Cant. Bolsas <p-sortIcon field="cantidadBolsas"></p-sortIcon></th>
+                <th pSortableColumn="idEtiqueta">Etiqueta <p-sortIcon field="idEtiqueta"></p-sortIcon></th>
+                <th pSortableColumn="cantidadEtiquetas">Cant. Etiquetas <p-sortIcon field="cantidadEtiquetas"></p-sortIcon></th>
                 <th style="min-width:100px">Acciones</th>              
             </tr>
             <tr>
@@ -62,8 +66,7 @@
                         <ng-template pTemplate="filter" let-value let-filter="filterCallback">
                             <p-dropdown [ngModel]="value" [options]="categorias"
                              (onChange)="filter($event.value)" placeholder="Todos"
-                            [showClear]="true" appendTo="body"
-                            [showClear]="true" optionValue="nombre" optionLabel="nombre">
+                            [showClear]="true" appendTo="body" optionValue="nombre" optionLabel="nombre">
                             </p-dropdown>
                         </ng-template>
                     </p-columnFilter>
@@ -73,8 +76,7 @@
                         <ng-template pTemplate="filter" let-value let-filter="filterCallback">
                             <p-dropdown [ngModel]="value" [options]="vendeComo"
                              (onChange)="filter($event.value)" placeholder="Todos"
-                            [showClear]="true" appendTo="body"
-                            [showClear]="true">
+                            [showClear]="true" appendTo="body">
                             </p-dropdown>
                         </ng-template>
                     </p-columnFilter>
@@ -82,6 +84,33 @@
                 <th>
                     <p-columnFilter type="text" field="cantidad" matchMode="contains" [showMenu]="false"></p-columnFilter>
                 </th>
+                <th>
+                    <p-columnFilter field="idBolsa" matchMode="equals" [showMenu]="false">
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-dropdown [ngModel]="value" [options]="bolsas"
+                             (onChange)="filter($event.value)" placeholder="Todos"
+                            [showClear]="true" appendTo="body" optionValue="id" optionLabel="descripcion">
+                            </p-dropdown>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="cantidadBolsas" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter field="idEtiqueta" matchMode="equals" [showMenu]="false">
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-dropdown [ngModel]="value" [options]="etiquetas"
+                             (onChange)="filter($event.value)" placeholder="Todos"
+                            [showClear]="true" appendTo="body" optionValue="id" optionLabel="descripcion">
+                            </p-dropdown>
+                        </ng-template>
+                    </p-columnFilter>
+                </th>
+                <th>
+                    <p-columnFilter type="text" field="cantidadEtiquetas" matchMode="contains" [showMenu]="false"></p-columnFilter>
+                </th>
+                
                 <th></th>
             </tr>
         </ng-template>
@@ -97,6 +126,10 @@
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Categoría:</span>  {{prod.categoria}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Se Vende como:</span>  {{prod.seVendeComo}}</td>
                 <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Cantidad/Peso del producto:</span>  {{getCantidad(prod.seVendeComo,prod.cantidad)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Bolsa:</span>  {{getCurrentBolsa(prod.idBolsa)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Cantidad Bolsas:</span>  {{prod.cantidadBolsas}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Etiqueta:</span>  {{getCurrentEtiqueta(prod.idEtiqueta)}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Cantidad Etiquetas:</span>  {{prod.cantidadEtiquetas}}</td>
                 <td style="justify-content: start;">
                     <button mat-mini-fab color="primary" aria-label="edit" class="mr-2" (click)="editar(prod)">
                         <mat-icon>edit</mat-icon>
@@ -142,14 +175,14 @@
                         <label htmlFor="price">Precio Venta</label>
                     </span>
                 </div>
-                <div class="mb-3">
+                <!-- <div class="mb-3">
                     <span class="p-float-label">
                         <p-inputNumber inputId="exist" [(ngModel)]="existencias" class="w-full"
                         [ngModelOptions]="{standalone: true}" styleClass="w-full"
                         name="exist"></p-inputNumber>
                         <label htmlFor="exist">Existencias</label>
                     </span>
-                </div>
+                </div> -->
                 <div class="mb-3">
                     <span class="p-float-label">
                         <p-dropdown [options]="categorias" [(ngModel)]="selectedCategoria"
@@ -176,6 +209,42 @@
                         [ngModelOptions]="{standalone: true}" styleClass="w-full"
                         name="cant" class="w-full"></p-inputNumber>
                         <label htmlFor="cant">Cantidad/Peso del producto</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="bolsas" [(ngModel)]="bolsa"
+                         placeholder="Seleccionar una opcion"
+                         name="bolsa" inputId="bolsa" [style]="{width: '100%'}" [ngModelOptions]="{standalone: true}"
+                         appendTo="body" styleClass="w-full" optionValue="id" optionLabel="descripcion">
+                        </p-dropdown>
+                        <label htmlFor="bolsa">Bolsa</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="cantBolsa" [(ngModel)]="cantidadBolsas"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="cantBolsa" class="w-full"></p-inputNumber>
+                        <label htmlFor="cantBolsa">Cantidad Bolsas</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="etiquetas" [(ngModel)]="etiqueta"
+                         placeholder="Seleccionar una opcion"
+                         name="etiqueta" inputId="etiqueta" [style]="{width: '100%'}" [ngModelOptions]="{standalone: true}"
+                         appendTo="body" styleClass="w-full" optionValue="id" optionLabel="descripcion">
+                        </p-dropdown>
+                        <label htmlFor="etiqueta">Etiqueta</label>
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <span class="p-float-label">
+                        <p-inputNumber inputId="cantEti" [(ngModel)]="cantidadEtiquetas"
+                        [ngModelOptions]="{standalone: true}" styleClass="w-full"
+                        name="cantEti" class="w-full"></p-inputNumber>
+                        <label htmlFor="cantEti">Cantidad Etiquetas</label>
                     </span>
                 </div>
                 <div class="mb-3">

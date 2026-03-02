@@ -38,7 +38,9 @@
               "node_modules/primeflex/primeflex.css",
               "src/styles.scss"
             ],
-            "scripts": [],
+            "scripts": [
+              "node_modules/chart.js/dist/chart.js"
+            ],
             "serviceWorker": true,
             "ngswConfigPath": "ngsw-config.json"
           },
@@ -47,8 +49,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "4mb"
+                  "maximumWarning": "5mb",
+                  "maximumError": "8mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -120,5 +122,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

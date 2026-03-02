@@ -1,0 +1,98 @@
+<p-toast key="ts"></p-toast>
+<p-confirmDialog ></p-confirmDialog>
+<mat-card class="card-data">
+    <mat-card-header>
+        <div class="header-format">
+          <span >Compras</span>
+          <div>
+            <button mat-mini-fab color="accent" class="mr-2" [routerLink]="['/app/cierre-caja']">
+                <mat-icon>shopping_cart</mat-icon>
+            </button>
+            <button mat-icon-button [routerLink]="['/app/inicio']">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+          </div>
+        </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="w-full grid">
+            <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+               <span class="p-float-label">
+                   <p-inputNumber inputId="tipoC" [(ngModel)]="tipoCambio"
+                        styleClass="w-full" class="w-full"></p-inputNumber>
+                   <label htmlFor="tipoC">Tipo de cambio</label>
+               </span>
+            </div>
+            <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+               <span class="p-float-label">
+                   <p-calendar [(ngModel)]="fecha" appendTo="body" styleClass="w-full" [touchUI]="true"
+                    inputId="fecha" dateFormat="dd/mm/yy" [firstDayOfWeek]="1" [readonlyInput]="true"></p-calendar>
+                   <label htmlFor="fecha">Fecha</label>
+               </span>
+            </div>
+            <div class="xl:col-3 lg:col-4 md:col-6 col-12">
+                <p-button label="Buscar" icon="pi pi-search" (onClick)="getAll()" styleClass="p-button-raised p-button-info"></p-button>
+            </div>
+        </div>
+        <p-table #dt1 styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines" responsiveLayout="stack" [breakpoint]="'350px'"
+        [value]="data" 
+        selectionMode="single" dataKey="id"
+        [loading]="loading" 
+        [globalFilterFields]="['id', 'nombreRubro','monto']">
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto" [style]="{width: '100%'}">
+                    <i class="pi pi-search"></i>
+                    <input pInputText  type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Buscar rubro" />
+                    <button mat-icon-button color="primary" (click)="save()">
+                        <mat-icon>save</mat-icon>
+                    </button>
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="id" >Eliminar <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="nombreRubro">Rubro <p-sortIcon field="nombreRubro"></p-sortIcon></th>
+                <th pSortableColumn="monto">Monto<p-sortIcon field="monto"></p-sortIcon></th>        
+            </tr>
+    
+        </ng-template>
+        <ng-template pTemplate="body" let-buy >
+            <tr>
+                <td style="justify-content: center;text-align: center;">
+                    <button *ngIf="buy.id" mat-mini-fab color="warn" aria-label="delete" (click)="confirm(buy.id)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Rubro:</span>  {{buy.nombreRubro}}</td>
+                <td style="justify-content: start;"><span class="p-column-title font-bold w-50">Monto:</span>  
+                    <p-inputNumber [(ngModel)]="buy.monto"
+                       class="w-adjust" styleClass="w-adjust" inputStyleClass="w-adjust"
+                       (onInput)="presionar()"></p-inputNumber>
+                </td>           
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="3">No hay registros</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <tr>
+                <td colspan="2">Total  Compras</td>
+                <td>{{totalCompras()}}</td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <button mat-raised-button color="primary" (click)="save()">Guardar</button>
+                </td>
+            </tr>
+        </ng-template>
+        </p-table>
+        
+    </mat-card-content>
+    <mat-card-footer>
+        <a mat-button class="m-2" [routerLink]="['/app/inicio']">Volver al inicio</a>
+    </mat-card-footer>
+</mat-card>
