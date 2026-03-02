@@ -48,4 +48,4 @@ Thumbs.db
 .firebase.json
 .firebaserc
 ngsw-config.json
-/environments/environment.ts
+/src/environments/environment.ts
